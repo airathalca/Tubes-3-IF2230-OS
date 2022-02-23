@@ -42,12 +42,18 @@ void printString(char *string) {
 
 void readString(char *string) {
     int i = 0;
-    char c = string[i];
-    while (c != '\0') {
+    char c;
+
+    do {
+        c = interrupt(0x16, 0x0, 0, 0, 0);
         interrupt(0x10, 0x0E00 + c,0,0,0);
+
+        string[i] = c;
         i++;
-        c = string[i];
-    }
+
+    } while (c != '\n');
+
+    string[i] = '\0';
 }
 
 void clearScreen() {
