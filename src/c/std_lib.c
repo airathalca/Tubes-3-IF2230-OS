@@ -20,6 +20,13 @@ int mod (int a, int n) {
   return a;
 }
 
+void memcpy(byte *dest, byte *src, unsigned int n) {
+  while (n) {
+    *dest++ = *src++;
+    n--;
+  }
+}
+
 unsigned int strlen(char *string) {
   int res = 0;
   while (string[res] != 0x0) {
@@ -39,4 +46,15 @@ bool strcmp(char *s1, char *s2) {
     }
   }
   return true;
+}
+
+void strcpy(char *dst, char *src) {
+  while ((*dst++ = *src++) != '\0');
+}
+
+void clear(byte *ptr, unsigned int n) {
+  while (n > 0) {
+    *ptr++ = 0;
+    n--;
+  }
 }
