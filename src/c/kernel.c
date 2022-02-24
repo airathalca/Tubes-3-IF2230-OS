@@ -11,10 +11,10 @@ int main() {
     clearScreen();
     makeInterrupt21();
 
-    printString("Halo!\r\n");
+    printString("Hello World!\r\n");
     readString(buf);
     printString(buf);
-
+    
     while (true);
 }
 
@@ -55,7 +55,12 @@ void readString(char *string) {
             check = false;
             interrupt(0x10, 0x0E00 + '\r', 0, 0, 0);
             interrupt(0x10, 0x0E00 + '\n', 0, 0, 0);
-            
+
+        } else if (c == '\b') {
+            interrupt(0x10, 0x0E00 + '\b', 0, 0, 0);
+            interrupt(0x10, 0x0E00 + ' ', 0, 0, 0);
+            interrupt(0x10, 0x0E00 + '\b', 0, 0, 0);
+
         } else {
             string[i] = c;
             interrupt(0x10, 0x0E00 + c, 0, 0, 0);
