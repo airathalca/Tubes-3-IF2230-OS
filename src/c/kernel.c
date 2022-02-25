@@ -9,6 +9,7 @@
 int main() {
     char buf[128];
     //call the bootloader
+    clearScreen();
     makeInterrupt21();
     printString("Welcome to uSUSbuntu OS\r\n");
     printString("Press enter any key to get started\r\n");
@@ -28,7 +29,6 @@ void handleInterrupt21(int AX, int BX, int CX, int DX) {
             readString(BX);
             break;
         default:
-            clearScreen();
             printString("Invalid Interrupt");
     }
 }
@@ -85,7 +85,7 @@ void readString(char *string) {
             if(i <= 126){
               i++;
             }
-        }
+        }1
     }
 }
 
