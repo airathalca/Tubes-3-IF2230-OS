@@ -8,14 +8,13 @@
 
 int main() {
     char buf[128];
-    clearScreen();
     makeInterrupt21();
-
-    printString("Hello World!\r\n");
-    readString(buf);
-    printString(buf);
-    
-    while (true);
+    printString("Welcome to uSUSbuntu OS\r\n");
+    while(true){
+      handleInterrupt21(1, buf);
+      handleInterrupt21(0, buf);
+    }
+    clearScreen();
 }
 
 void handleInterrupt21(int AX, int BX, int CX, int DX) {
@@ -60,14 +59,17 @@ void readString(char *string) {
             interrupt(0x10, 0x0E00 + '\b', 0, 0, 0);
             interrupt(0x10, 0x0E00 + ' ', 0, 0, 0);
             interrupt(0x10, 0x0E00 + '\b', 0, 0, 0);
-
+            string[i] = '\0';
+            i--;
         } else {
             string[i] = c;
             interrupt(0x10, 0x0E00 + c, 0, 0, 0);
             i++;
         }
     }
+    printString("\r");
 }
 
 void clearScreen() {
+  interrupt(0x10, 0x0200, 0, 0);
 }
