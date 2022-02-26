@@ -18,7 +18,6 @@ int main() {
     while (true) {
       interrupt(0x21, 1, buf, 0, 0);
       interrupt(0x21, 0, buf, 0, 0);
-      interrupt(0x21, 0, "\n",0, 0);
     }
 }
 
