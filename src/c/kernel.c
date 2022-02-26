@@ -8,14 +8,17 @@
 
 int main() {
     char buf[128];
+
     //call the bootloader
     makeInterrupt21();
     printString("Welcome to uSUSbuntu OS\r\n");
     printString("Press enter any key to get started\r\n");
+
     //wait for user input
-    while(true){
+    while (true) {
       interrupt(0x21, 1, buf, 0, 0);
       interrupt(0x21, 0, buf, 0, 0);
+      interrupt(0x21, 0, "\n",0, 0);
     }
 }
 
@@ -38,7 +41,7 @@ void handleInterrupt21(int AX, int BX, int CX, int DX) {
 //0x8000 + (80*y + x) * 2 <- y
 //karna ukurannya 80x25 berarti setiap huruf pindah 80
 
-void printString(char *string) {
+void printString(char string[]) {
     int i = 0;
     char c = string[i];
     byte color = 0xD;
@@ -58,7 +61,7 @@ void printString(char *string) {
 // }
 }
 
-void readString(char *string) {
+void readString(char string[]) {
     bool check = true;
     char c = '\0';
     int i = 0;
@@ -66,23 +69,25 @@ void readString(char *string) {
         //read character <- user input
         c = interrupt(0x16, 0x0, 0, 0, 0);
         if (c == '\r' || c == '\n') { //carriage and newline
-            string[i++] = '\r';
-            string[i++] = '\n';
             string[i++] = '\0';
             check = false;
             printString("\r\n");
+
         } else if (c == '\b') { //backspace
             interrupt(0x10, 0x0E00 + '\b', 0, 0, 0);
             interrupt(0x10, 0x0E00 + ' ', 0, 0, 0);
             interrupt(0x10, 0x0E00 + '\b', 0, 0, 0);
             string[i] = '\0';
-            if(i > 0){
+            
+            if (i > 0){
               i--;
             }
+
         } else { //insert to buffer but don't exceed the boundary
             string[i] = c;
             interrupt(0x10, 0x0E00 + c, 0, 0, 0);
-            if(i <= 126){
+
+            if(i < 127){
               i++;
             }
         }
@@ -90,5 +95,5 @@ void readString(char *string) {
 }
 
 void clearScreen() {
-  interrupt(0x10, 0x0003);
+  interrupt(0x10, 0x0003, 0, 0, 0);
 }
