@@ -9,7 +9,7 @@
 int main() {
     char buf[128];
     //call the bootloader
-    clearScreen();
+    // clearScreen();
     makeInterrupt21();
     interrupt(0x10, 0x0200, 0, 0, 0x0307);
     printString("       ____  _   _ ____  _                 _            ___  ____\r\n");
@@ -104,5 +104,6 @@ void readString(char *string) {
 }
 
 void clearScreen() {
-  interrupt(0x10, 0x0003, 0, 0, 0);
+  interrupt(0x10, 0x0200, 0, 0, 0);
+  interrupt(0x10, 0x0600, 0x0f00, 0, 0x4f18);
 }
