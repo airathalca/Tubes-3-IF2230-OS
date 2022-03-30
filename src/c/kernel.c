@@ -25,7 +25,6 @@ int main() {
     printString("Welcome to uSUSbuntu OS\r\n");
     interrupt(0x10, 0x0200, 0, 0, 0x0A28 - 0x12);
     printString("Press enter any key to get started\r\n\n");
-
     //wait for user input
     while (true) {
       interrupt(0x21, 1, buf, 0, 0);
@@ -108,10 +107,10 @@ void clearScreen() {
   interrupt(0x10, 0x0600, 0x0f00, 0, 0x184f);
 }
 
-// void writeSector(byte *buffer, int sector_number) {
-//   interrupt(0x13, 0x0201, buffer, div(sector_number, 36) << 8 + mod(sector_number, 18) + 1, mod(div(sector_number, 18), 2) << 8);
-// }
+void writeSector(byte *buffer, int sector_number) {
+  interrupt(0x13, 0x0201, buffer, (sector_number / 36) * 100 + mod(sector_number, 18) + 1, mod(div(sector_number, 18), 2) * 100);
+}
 
-// void readSector(byte *buffer, int sector_number) {
-//   interrupt(0x13, 0x0301, buffer, div(sector_number, 36) << 8 + mod(sector_number, 18) + 1, mod(div(sector_number, 18), 2) << 8);
-// }
+void readSector(byte *buffer, int sector_number) {
+  interrupt(0x13, 0x0301, buffer, div(sector_number, 36) << 8 + mod(sector_number, 18) + 1, mod(div(sector_number, 18), 2) << 8);
+}

@@ -3,12 +3,7 @@
 // Opsional : Tambahkan implementasi kode C
 int div (int a, int b) {
   int res = 0;
-
-  if (a == b) {
-    return 1;
-  }
-
-  while (a >= b) {
+  while (a>=b) {
     a -= b;
     res++;
   }
@@ -16,10 +11,7 @@ int div (int a, int b) {
 }
 
 int mod (int a, int n) {
-  while (a >= n) {
-    a -= n;
-  }
-  return a;
+  return a - div(a,n) * n;
 }
 
 void memcpy(byte *dest, byte *src, unsigned int n) {
