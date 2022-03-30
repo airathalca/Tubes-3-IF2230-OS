@@ -137,6 +137,9 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
   struct node_filesystem   node_fs_buffer;
   struct sector_filesystem sector_fs_buffer;
   int i = 0;
+  int j = 0;
+  bool found = false;
+  byte file[16];
   // Tambahkan tipe data yang dibutuhkan
   // Masukkan filesystem dari storage ke memori buffer
 
@@ -144,15 +147,33 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
   //    Jika ditemukan node yang cocok, lanjutkan ke langkah ke-2.
   //    Jika tidak ditemukan kecocokan, tuliskan retcode FS_R_NODE_NOT_FOUND
   //    dan keluar. 
-  // while (i < 64) {
-  //   if(strcmp(node_fs_buffer.nodes[i].name, metadata->node_name) && 
-  // }
 
+  readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER);
+  readSector(&node_fs_buffer + 512, FS_NODE_SECTOR_NUMBER + 1);
+  readSector(&sector_fs_buffer, FS_SECTOR_SECTOR_NUMBER);
 
+  while (i < 64 && !found) {
+    if (strcmp(node_fs_buffer.nodes[i].name, metadata->node_name) && 
+    metadata->parent_index == node_fs_buffer.nodes[i].parent_node_index){
+      found = true;
+    }
+    i++;
+  }
+
+  if (!found){
+    return_code = FS_R_NODE_NOT_FOUND;
+    return;
+  } 
+  
   // 2. Cek tipe node yang ditemukan
   //    Jika tipe node adalah file, lakukan proses pembacaan.
   //    Jika tipe node adalah folder, tuliskan retcode FS_R_TYPE_IS_FOLDER
   //    dan keluar.
+
+  if (node_fs_buffer.nodes[i].sector_entry_index == FS_NODE_S_IDX_FOLDER) {
+    return_code = FS_R_TYPE_IS_FOLDER;
+    return;
+  }
 
   // Pembacaan
   // 1. memcpy() entry sector sesuai dengan byte S
@@ -164,4 +185,16 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
   // 6. Lompat ke iterasi selanjutnya hingga iterasi selesai
   // 7. Tulis retcode FS_SUCCESS dan ganti filesize 
   // pada akhir proses pembacaan.
+  clear(metadata->buffer, metadata->filesize);
+  memcpy(&file, &sector_fs_buffer.sector_list[node_fs_buffer.nodes[i].sector_entry_index], 16);
+  for(j = 0; j < 16; j++){
+    if(file[j]){
+      readSector(metadata->buffer + j * 512, file[j]);
+      continue;
+    }
+    break;
+  }
+
+  metadata->filesize = j;
+  return_code = FS_SUCCESS;
 }

@@ -15,9 +15,8 @@ int mod (int a, int n) {
 }
 
 void memcpy(byte *dest, byte *src, unsigned int n) {
-  while (n) {
+  while (n--) {
     *dest++ = *src++;
-    n--;
   }
 }
 
