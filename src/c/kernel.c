@@ -121,7 +121,6 @@ void fillKernelMap(){
   int i;
   // Load filesystem map
   readSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER);
-
   for(i = 0; i < 512; i++) {
     if(i < 16 || i > 256){
       map_fs_buffer.is_filled[i] = true;
@@ -129,7 +128,6 @@ void fillKernelMap(){
       map_fs_buffer.is_filled[i] = false;
     }
   }
-
   writeSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER); 
 }
 
@@ -149,7 +147,7 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
   //    dan keluar. 
 
   readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER);
-  readSector(&node_fs_buffer + 512, FS_NODE_SECTOR_NUMBER + 1);
+  readSector(&node_fs_buffer.nodes[32], FS_NODE_SECTOR_NUMBER + 1);
   readSector(&sector_fs_buffer, FS_SECTOR_SECTOR_NUMBER);
 
   while (i < 64 && !found) {
@@ -189,7 +187,7 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
   memcpy(&file, &sector_fs_buffer.sector_list[node_fs_buffer.nodes[i].sector_entry_index], 16);
   for(j = 0; j < 16; j++){
     if(file[j]){
-      readSector(metadata->buffer + j * 512, file[j]);
+      readSector(metadata->buffer[j], file[j]);
       continue;
     }
     break;
