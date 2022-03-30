@@ -9,7 +9,7 @@
 int main() {
     char buf[128];
     //call the bootloader
-    // clearScreen();
+    clearScreen();
     makeInterrupt21();
     interrupt(0x10, 0x0200, 0, 0, 0x0307);
     printString("       ____  _   _ ____  _                 _            ___  ____\r\n");
@@ -105,13 +105,13 @@ void readString(char *string) {
 
 void clearScreen() {
   interrupt(0x10, 0x0200, 0, 0, 0);
-  interrupt(0x10, 0x0600, 0x0f00, 0, 0x4f18);
+  interrupt(0x10, 0x0600, 0x0f00, 0, 0x184f);
 }
 
-void writeSector(byte *buffer, int sector_number) {
-  interrupt(0x13, 0x0201, buffer, div(sector_number, 36) << 8 + mod(sector_number, 18) + 1, mod(div(sector_number, 18), 2) << 8);
-}
+// void writeSector(byte *buffer, int sector_number) {
+//   interrupt(0x13, 0x0201, buffer, div(sector_number, 36) << 8 + mod(sector_number, 18) + 1, mod(div(sector_number, 18), 2) << 8);
+// }
 
-void readSector(byte *buffer, int sector_number) {
-  interrupt(0x13, 0x0301, buffer, div(sector_number, 36) << 8 + mod(sector_number, 18) + 1, mod(div(sector_number, 18), 2) << 8);
-}
+// void readSector(byte *buffer, int sector_number) {
+//   interrupt(0x13, 0x0301, buffer, div(sector_number, 36) << 8 + mod(sector_number, 18) + 1, mod(div(sector_number, 18), 2) << 8);
+// }
