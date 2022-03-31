@@ -21,4 +21,6 @@ void printCWD(char *path_str, char *current_dir);
 
 void error_code(int error_code);
 
+void mkdir(char parentIndex, struct file_metadata *fileInfo);
+
 #endif
