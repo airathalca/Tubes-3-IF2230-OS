@@ -95,8 +95,17 @@ void cat(char parentIndex, char *filename) {
   ///dapet sector number terus baca semuanya
 }
 
-void mkdir(byte cur_dir_idx, struct file_metadata fileInfo){
-  fileInfo.parent_index = cur_dir_idx;
+void mkdir(byte cur_dir_idx, struct file_metadata *fileInfo){
+  //udah ada isinya si fileinfonya;
+  int ret_code;
+  fileInfo->parent_index = cur_dir_idx;
+  fileInfo->filesize = 0;
+  write(fileInfo, &ret_code);
+  error_code(ret_code);
+  if(ret_code != 0){
+    return;
+  }
+  printString("Folder berhasil dibuat");
 }
 
 void printCWD(char* path_str, char* current_dir) {
