@@ -46,20 +46,39 @@ void cd(char *parentIndex, char *dir, char *newCWD) {
 }
 
 void ls(char parentIdx) {
-    struct node_filesystem node_fs_buffer;
-    int i = 0;
+  struct node_filesystem node_fs_buffer;
+  int i = 0;
 
+  readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
+  readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
+    
+  while (i < 64) {
+    if (node_fs_buffer.nodes[i].parent_node_index == parentIdx && 
+    node_fs_buffer.nodes[i].name[0] != '\0') {
+      printString(node_fs_buffer.nodes[i].name);
+      printString("\n");
+    }
+  i++;
+  }
+}
+
+void lsWithDir(char parentIdx, char *path) {
+  struct node_filesystem node_fs_buffer;
+    int i = 0;
     readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
     readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
-    
-    while (i < 64) {
-        if (node_fs_buffer.nodes[i].parent_node_index == parentIdx && 
-        node_fs_buffer.nodes[i].name[0] != '\0') {
-            readString(node_fs_buffer.nodes[i].name);
-            readString("\n");
-        }
-        i++;
+  while (i < 64) {
+    if (node_fs_buffer.nodes[i].parent_node_index == parentIdx &&
+    strcmp(node_fs_buffer.nodes[i].name, path) &&
+    node_fs_buffer.nodes[i].sector_entry_index == FS_NODE_S_IDX_FOLDER) {
+      ls(i);
+      break;
     }
+  i++;
+  }
+  if (i == 64) {
+    printString("Folder Tidak Ditemukan.\n");
+  }
 }
 
 void cat(char parentIndex, char *filename) {
