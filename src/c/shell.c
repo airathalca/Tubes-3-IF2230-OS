@@ -17,7 +17,7 @@ void shell() {
     }
 
     if (strcmp(input_buf, "cd")) {
-
+      
     } else if (strcmp(input_buf, "ls")) {
         
     } else if (strcmp(input_buf, "mv")) {
@@ -38,7 +38,7 @@ void cd(char *parentIndex, char *dir, char *newCWD) {
 }
 
 void ls(char parentIdx) {
-    struct node_filesystem   node_fs_buffer;
+    struct node_filesystem node_fs_buffer;
     int i = 0;
 
     readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);

@@ -267,7 +267,6 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
   // 3. Cek dan pastikan entry node pada indeks P adalah folder.
   //    Jika pada indeks tersebut adalah file atau entri kosong,
   //    Tuliskan retcode FS_W_INVALID_FOLDER dan keluar.
-
   if (node_fs_buffer.nodes[metadata->parent_index].sector_entry_index != FS_NODE_S_IDX_FOLDER) {
     return_code = FS_W_INVALID_FOLDER;
     return;
@@ -306,7 +305,7 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
   //    FS_W_MAXIMUM_SECTOR_ENTRY dan keluar.
   //    Selain kondisi diatas, lanjutkan ke proses penulisan.
   for (i = 0; i < 32; i++) {
-    if (sector_fs_buffer.sector_list[i].sector_numbers[0] == 0) {
+    if (sector_fs_buffer.sector_list[i].sector_numbers[0] == '\0') {
       break;
     }
   }
@@ -341,22 +340,31 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
   // 9. Kembalikan retcode FS_SUCCESS
   strcpy(node_fs_buffer.nodes[j].name, metadata->buffer);
   node_fs_buffer.nodes[j].parent_node_index = metadata->parent_index;
-  node_fs_buffer.nodes[j].sector_entry_index = i;
-  int k = 0;
-  int l;
-  for (l = 0; l < 256; l++) {
-    if (map_fs_buffer.is_filled[l]) {
-      continue;
+  if (metadata->filesize == 0) {
+    node_fs_buffer.nodes[j].sector_entry_index = 0xFF;
+  } else {
+    //i: sector (i), k: iterator entry kosong (j), l : iterator biasa
+    node_fs_buffer.nodes[j].sector_entry_index = i;
+    int k = 0;
+    int l;
+    byte *buffer;
+    for (l = 0; l < 256; l++) {
+      if (map_fs_buffer.is_filled[l]) {
+        continue;
+      }
+      map_fs_buffer.is_filled[l] = true;
+      buffer[k] = i;
+      writeSector(metadata->buffer + k * 512, l);
+      k++;
+      if (metadata->filesize <= 512 * k) {
+        break;
+      }
     }
-    map_fs_buffer.is_filled[l] = true;
-    sector_fs_buffer.sector_list[i].sector_numbers[j] = l;
-    writeSector(metadata->buffer + j * 512,l);
-    j++;
-    if (metadata->filesize <= 512 * j) {
-      break;
-    }
+    memcpy(&sector_fs_buffer.sector_list[i], buffer, k);
   }
 
-  //7 8 9 belum
-
+  writeSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER);
+  writeSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER);
+  writeSector(&node_fs_buffer.nodes[32], FS_NODE_SECTOR_NUMBER + 1);
+  writeSector(&sector_fs_buffer, FS_SECTOR_SECTOR_NUMBER);
 }
