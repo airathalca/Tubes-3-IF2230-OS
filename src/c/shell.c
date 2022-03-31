@@ -74,7 +74,7 @@ void lsWithDir(char parentIdx, char *path) {
       ls(i);
       break;
     }
-  i++;
+    i++;
   }
   if (i == 64) {
     printString("Folder Tidak Ditemukan.\n");
@@ -93,6 +93,40 @@ void cat(char parentIndex, char *filename) {
   }
   printString(fileInfo.buffer);
   ///dapet sector number terus baca semuanya
+}
+
+void cp(char parentIndex, char *resourcePath, char *destinationPath) {
+  struct file_metadata fileInfo; int ret_code = 0;
+  fileInfo.parent_index = parentIndex;
+  strcpy(fileInfo.node_name, resourcePath);
+  read(&fileInfo, &ret_code);
+  error_code(ret_code);
+  if(ret_code != 0){
+    return;
+  }
+
+  struct node_filesystem node_fs_buffer;
+    int i = 0;
+    readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
+    readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
+  while (i < 64) {
+    if (node_fs_buffer.nodes[i].parent_node_index == parentIndex &&
+    strcmp(node_fs_buffer.nodes[i].name, destinationPath) &&
+    node_fs_buffer.nodes[i].sector_entry_index == FS_NODE_S_IDX_FOLDER) {
+      fileInfo.parent_index = i;
+      break;
+    }
+    i++;
+  }
+  if (i == 64) {
+    printString("Folder Tidak Ditemukan.\n");
+    return;
+  }
+  write(&fileInfo,&ret_code);
+  error_code(ret_code);
+  if(ret_code != 0){
+    return;
+  }
 }
 
 void printCWD(char* path_str, char* current_dir) {
