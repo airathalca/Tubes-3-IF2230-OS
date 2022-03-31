@@ -1,53 +1,53 @@
 #include "header/shell.h"
 
 void shell() {
-    char input_buf[64];
-    char path_str[128];
-    byte current_dir = FS_NODE_P_IDX_ROOT;
+  char input_buf[64];
+  char path_str[128];
+  byte current_dir = FS_NODE_P_IDX_ROOT;
 
-    while (true) {
-      printString("OSIF2230:");
-      printCWD(path_str, current_dir);
-      printString("$ ");
-      readString(input_buf);
-    }
+  while (true) {
+    printString("OSIF2230:");
+    printCWD(path_str, current_dir);
+    printString("$ ");
+    readString(input_buf);
+  }
 
-    //kinan
-    if (strcmp(input_buf, "cd")) {
+  //kinan
+  if (strcmp(input_buf, "cd")) {
+    
+  } 
+  //beres
+  else if (strcmp(input_buf, "ls")) {
       
-    } 
-    //beres
-    else if (strcmp(input_buf, "ls")) {
-        
-    } 
-    //aing
-    else if (strcmp(input_buf, "mv")) {
+  } 
+  //aing
+  else if (strcmp(input_buf, "mv")) {
 
-    } 
-    //aing
-    else if (strcmp(input_buf, "mkdir")) {
-      
-    } 
-    //beres
-    else if (strcmp(input_buf, "cat")) {
+  } 
+  //aing
+  else if (strcmp(input_buf, "mkdir")) {
+    
+  } 
+  //beres
+  else if (strcmp(input_buf, "cat")) {
 
-    } 
-    //aira
-    else if (strcmp(input_buf, "cp")) {
+  } 
+  //aira
+  else if (strcmp(input_buf, "cp")) {
 
-    } 
-    else {
-        printString("Unknown command\r\n");
-    }
+  } 
+  else {
+      printString("Unknown command\r\n");
+  }
 }
 
 void cd(byte *parentIndex, char *dir) {
-    struct node_filesystem node_fs_buffer;
-    char temp_str[128];
-    int i;
-    bool found = false;
+  struct node_filesystem node_fs_buffer;
+  char temp_str[128];
+  int i;
+  bool found = false;
 
-    readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
+  readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
 	readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
 
 	clear(temp_str, 128);
@@ -67,8 +67,11 @@ void cd(byte *parentIndex, char *dir) {
 				*parentIndex = i;
 
 			} else {
+				error_code(7);
 				break;
 			}
+
+			clear(temp_str, 128);
 
 		} else {
 			temp_str[strlen(temp_str)] = *dir;
@@ -141,19 +144,22 @@ void mkdir(byte cur_dir_idx, struct file_metadata *fileInfo){
   printString("Folder berhasil dibuat");
 }
 void cp(byte parentIndex, char *resourcePath, char *destinationPath) {
-  struct file_metadata fileInfo; int ret_code = 0;
+  struct file_metadata fileInfo;
+	int ret_code = 0;
+  struct node_filesystem node_fs_buffer;
+  int i = 0;
+
   fileInfo.parent_index = parentIndex;
   strcpy(fileInfo.node_name, resourcePath);
   read(&fileInfo, &ret_code);
   error_code(ret_code);
-  if(ret_code != 0){
+  if (ret_code != 0){
     return;
   }
 
-  struct node_filesystem node_fs_buffer;
-    int i = 0;
-    readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
-    readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
+  readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
+  readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
+
   while (i < 64) {
     if (node_fs_buffer.nodes[i].parent_node_index == parentIndex &&
     strcmp(node_fs_buffer.nodes[i].name, destinationPath) &&
