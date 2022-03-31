@@ -220,8 +220,12 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
   struct map_filesystem    map_fs_buffer;
   int i = 0;
   int j = 0;
+  int k = 0;
+  int l;
+  byte *buffer;
   bool found = false;
   byte parent;
+  unsigned int sizenow;
 
   readSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER);
   readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER);
@@ -285,7 +289,7 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
     return;
   }
 
-  unsigned int sizenow = metadata->filesize;
+  sizenow = metadata->filesize;
   for (i = 0; i < 512; i++) {
     if (!map_fs_buffer.is_filled[i]) {
       sizenow -= 512;
@@ -345,9 +349,6 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
   } else {
     //i: sector (i), k: iterator entry kosong (j), l : iterator biasa
     node_fs_buffer.nodes[j].sector_entry_index = i;
-    int k = 0;
-    int l;
-    byte *buffer;
     for (l = 0; l < 256; l++) {
       if (map_fs_buffer.is_filled[l]) {
         continue;
