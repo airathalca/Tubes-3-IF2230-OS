@@ -16,7 +16,7 @@ void shell() {
     if (strcmp(input_buf, "cd")) {
       
     } 
-    //aira
+    //beres
     else if (strcmp(input_buf, "ls")) {
         
     } 
@@ -24,11 +24,11 @@ void shell() {
     else if (strcmp(input_buf, "mv")) {
 
     } 
-    //kinan
-    else if (strcmp(input_buf, "mkdir")) {
-
-    } 
     //aing
+    else if (strcmp(input_buf, "mkdir")) {
+      
+    } 
+    //beres
     else if (strcmp(input_buf, "cat")) {
 
     } 
@@ -95,6 +95,18 @@ void cat(char parentIndex, char *filename) {
   ///dapet sector number terus baca semuanya
 }
 
+void mkdir(byte cur_dir_idx, struct file_metadata *fileInfo){
+  //udah ada isinya si fileinfonya;
+  int ret_code;
+  fileInfo->parent_index = cur_dir_idx;
+  fileInfo->filesize = 0;
+  write(fileInfo, &ret_code);
+  error_code(ret_code);
+  if(ret_code != 0){
+    return;
+  }
+  printString("Folder berhasil dibuat");
+}
 void cp(char parentIndex, char *resourcePath, char *destinationPath) {
   struct file_metadata fileInfo; int ret_code = 0;
   fileInfo.parent_index = parentIndex;
@@ -123,13 +135,10 @@ void cp(char parentIndex, char *resourcePath, char *destinationPath) {
     return;
   }
   write(&fileInfo,&ret_code);
-  error_code(ret_code);
-  if(ret_code != 0){
-    return;
-  }
 }
 
 void printCWD(char* path_str, char* current_dir) {
+  //current_dir ini udah byte node anjir
   struct node_filesystem node_fs_buffer;
   struct sector_filesystem sector_fs_buffer;
   int i = 0;
@@ -143,15 +152,9 @@ void printCWD(char* path_str, char* current_dir) {
   readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER);
   readSector(&node_fs_buffer.nodes[32], FS_NODE_SECTOR_NUMBER + 1);
   readSector(&sector_fs_buffer, FS_SECTOR_SECTOR_NUMBER);
-  //1. mane cari yang current_dir nya sama
-  while(i < 64) {
-    if(strcmp(current_dir, node_fs_buffer.nodes[i].name)) {
-      parent = node_fs_buffer.nodes[i].parent_node_index;
-      nodeIndex[idx++] = i;
-      break;
-    }
-  }
-  
+  //1. mane cari yang current_dir nya udah index ngab
+  nodeIndex[idx++] = current_dir;
+  parent = node_fs_buffer.nodes[(int) current_dir].parent_node_index;
   //simpen semuanya di nodeIndex
   while(parent != FS_NODE_P_IDX_ROOT){
     if (parent == (j % 64)) {
@@ -160,9 +163,8 @@ void printCWD(char* path_str, char* current_dir) {
     }
     j++;
   }
-  
   //copy semuanya ke path_str
-  while(idx > 0) {
+  while(idx >= 0) {
     iteratorPath = node_fs_buffer.nodes[nodeIndex[idx]].name;
     sizeNow = strlen(iteratorPath);
     //sizenow, sizenow + 1, sizenow + 2
@@ -173,7 +175,7 @@ void printCWD(char* path_str, char* current_dir) {
     curLen += (sizeNow + 1);
     idx--;
   }
-  strcpy(path_str + curLen, current_dir);
+  strcpy(path_str + curLen, iteratorPath);
   printString(path_str);
 }
 
