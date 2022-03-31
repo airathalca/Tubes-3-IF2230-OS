@@ -98,11 +98,43 @@ void ls(byte parentIdx) {
   }
 }
 
+void mv(byte parentIdx, char *source, char *target) {
+	struct node_filesystem node_fs_buffer;
+	int i = 0;
+	bool found;
+	byte addressSrc, addressTarget;
+
+	readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
+	readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
+
+	while (i < 64 && !found) {
+		if (node_fs_buffer.nodes[i].parent_node_index == parentIdx && strcmp(node_fs_buffer.nodes[i].name, source)) {
+			found = true;
+		} else {
+			i++;
+		}
+	}
+
+	if (found) {
+		addressSrc = i;
+
+	} else {
+		error_code(7);
+		return;
+	}
+
+	cd(&addressTarget, target); // target berbentuk absolute dir
+
+	node_fs_buffer.nodes[i].parent_node_index = addressTarget;
+}
+
 void lsWithDir(byte parentIdx, char *path) {
   struct node_filesystem node_fs_buffer;
-    int i = 0;
-    readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
-    readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
+	int i = 0;
+
+	readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
+	readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
+
   while (i < 64) {
     if (node_fs_buffer.nodes[i].parent_node_index == parentIdx &&
     strcmp(node_fs_buffer.nodes[i].name, path) &&
@@ -119,7 +151,9 @@ void lsWithDir(byte parentIdx, char *path) {
 
 void cat(byte parentIndex, char *filename) {
   //diketahui parentIndexnya trs tinggal searching node mana yang p nya sama berarti itu ada di folder tsb cek namanya sama apa ga
-  struct file_metadata fileInfo; int ret_code = 0;
+  struct file_metadata fileInfo;
+	int ret_code = 0;
+
   fileInfo.parent_index = parentIndex;
   strcpy(fileInfo.node_name, filename);
   read(&fileInfo, &ret_code);
@@ -127,6 +161,7 @@ void cat(byte parentIndex, char *filename) {
   if(ret_code != 0){
     return;
   }
+
   printString(fileInfo.buffer);
   ///dapet sector number terus baca semuanya
 }
@@ -134,6 +169,7 @@ void cat(byte parentIndex, char *filename) {
 void mkdir(byte cur_dir_idx, struct file_metadata *fileInfo){
   //udah ada isinya si fileinfonya;
   int ret_code;
+
   fileInfo->parent_index = cur_dir_idx;
   fileInfo->filesize = 0;
   write(fileInfo, &ret_code);
@@ -143,6 +179,7 @@ void mkdir(byte cur_dir_idx, struct file_metadata *fileInfo){
   }
   printString("Folder berhasil dibuat");
 }
+
 void cp(byte parentIndex, char *resourcePath, char *destinationPath) {
   struct file_metadata fileInfo;
 	int ret_code = 0;
@@ -176,7 +213,7 @@ void cp(byte parentIndex, char *resourcePath, char *destinationPath) {
   write(&fileInfo,&ret_code);
 }
 
-void printCWD(char* path_str, char* current_dir) {
+void printCWD(char* path_str, byte current_dir) {
   //current_dir ini udah byte node anjir
   struct node_filesystem node_fs_buffer;
   struct sector_filesystem sector_fs_buffer;
@@ -193,7 +230,7 @@ void printCWD(char* path_str, char* current_dir) {
   readSector(&sector_fs_buffer, FS_SECTOR_SECTOR_NUMBER);
   //1. mane cari yang current_dir nya udah index ngab
   nodeIndex[idx++] = current_dir;
-  parent = node_fs_buffer.nodes[(int) current_dir].parent_node_index;
+  parent = node_fs_buffer.nodes[current_dir].parent_node_index;
   //simpen semuanya di nodeIndex
   while(parent != FS_NODE_P_IDX_ROOT){
     if (parent == (j % 64)) {
@@ -222,19 +259,19 @@ void error_code(int err_code){
   switch (err_code)
   {
   case -1:
-    printString("Unkown Error");
+    printString("Unknown Error\n");
     break;
   case 2:
-    printString("This is directory not file");
+    printString("This is directory not file\n");
     break;
   case 3:
-    printString("File already exists");
+    printString("File already exists\n");
     break;
   case 4:
-    printString("Storage is full");
+    printString("Storage is full\n");
     break;
   case 7:
-    printString("No such file or directory");
+    printString("No such file or directory\n");
     break;
   default:
     break;

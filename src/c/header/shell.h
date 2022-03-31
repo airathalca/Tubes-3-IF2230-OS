@@ -17,7 +17,7 @@ void cat(byte parentIndex, char *path);
 
 void cp(byte parentIndex, char *resourcePath, char *destinationPath);
 
-void printCWD(char *path_str, char *current_dir);
+void printCWD(char *path_str, byte current_dir);
 
 void error_code(int error_code);
 
