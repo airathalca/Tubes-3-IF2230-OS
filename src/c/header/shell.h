@@ -9,13 +9,13 @@ void shell();
 
 void commandParser(char *command, char *argument);
 
-void cd(char *parentIndex, char *dir, char *newCWD);
+void cd(byte *parentIndex, char *dir);
 
-void ls(char parentIndex);
+void ls(byte parentIndex);
 
-void cat(char parentIndex, char *path);
+void cat(byte parentIndex, char *path);
 
-void cp(char parentIndex, char *resourcePath, char *destinationPath);
+void cp(byte parentIndex, char *resourcePath, char *destinationPath);
 
 void printCWD(char *path_str, char *current_dir);
 

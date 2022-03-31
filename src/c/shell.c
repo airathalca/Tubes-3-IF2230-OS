@@ -41,11 +41,44 @@ void shell() {
     }
 }
 
-void cd(char *parentIndex, char *dir, char *newCWD) {
-    
+void cd(byte *parentIndex, char *dir) {
+    struct node_filesystem node_fs_buffer;
+    char temp_str[128];
+    int i;
+    bool found = false;
+
+    readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
+	readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
+
+	clear(temp_str, 128);
+
+	while (*dir != '\0') {
+		if (*dir == '/') {
+			i = 0;
+			while (i < 64 && !found) {
+				if (node_fs_buffer.nodes[i].sector_entry_index == FS_NODE_S_IDX_FOLDER && node_fs_buffer.nodes[i].parent_node_index == *parentIndex && strcmp(node_fs_buffer.nodes[i].name, temp_str)) {
+					found = true;
+				} else {
+					i++;
+				}
+			}
+
+			if (found) {
+				*parentIndex = i;
+
+			} else {
+				break;
+			}
+
+		} else {
+			temp_str[strlen(temp_str)] = *dir;
+		}
+
+		dir++;
+	}
 }
 
-void ls(char parentIdx) {
+void ls(byte parentIdx) {
   struct node_filesystem node_fs_buffer;
   int i = 0;
 
@@ -62,7 +95,7 @@ void ls(char parentIdx) {
   }
 }
 
-void lsWithDir(char parentIdx, char *path) {
+void lsWithDir(byte parentIdx, char *path) {
   struct node_filesystem node_fs_buffer;
     int i = 0;
     readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
@@ -81,7 +114,7 @@ void lsWithDir(char parentIdx, char *path) {
   }
 }
 
-void cat(char parentIndex, char *filename) {
+void cat(byte parentIndex, char *filename) {
   //diketahui parentIndexnya trs tinggal searching node mana yang p nya sama berarti itu ada di folder tsb cek namanya sama apa ga
   struct file_metadata fileInfo; int ret_code = 0;
   fileInfo.parent_index = parentIndex;
@@ -107,7 +140,7 @@ void mkdir(byte cur_dir_idx, struct file_metadata *fileInfo){
   }
   printString("Folder berhasil dibuat");
 }
-void cp(char parentIndex, char *resourcePath, char *destinationPath) {
+void cp(byte parentIndex, char *resourcePath, char *destinationPath) {
   struct file_metadata fileInfo; int ret_code = 0;
   fileInfo.parent_index = parentIndex;
   strcpy(fileInfo.node_name, resourcePath);
