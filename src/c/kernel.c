@@ -186,7 +186,6 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
   int i = 0;
   int j = 0;
   bool found = false;
-  byte file[16];
 
   // Masukkan filesystem dari storage ke memori buffer
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
@@ -223,7 +222,7 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
 
   // Pembacaan
   // 1. memcpy() entry sector sesuai dengan byte S
-  memcpy(&file, &sector_fs_buffer.sector_list[node_fs_buffer.nodes[i].sector_entry_index], 16);
+  memcpy(&sector_entry_buffer, &sector_fs_buffer.sector_list[node_fs_buffer.nodes[i].sector_entry_index], 16);
 
   // 2. Lakukan iterasi proses berikut, i = 0..15
   // 3. Baca byte entry sector untuk mendapatkan sector number partisi file
@@ -231,11 +230,12 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
   // 5. Jika byte valid, lakukan readSector() 
   //    dan masukkan kedalam buffer yang disediakan pada metadata
   // 6. Lompat ke iterasi selanjutnya hingga iterasi selesai
+  printString(&sector_entry_buffer);
   clear(metadata->buffer, metadata->filesize);
 
   for(j = 0; j < 16; j++){
-    if(file[j]){
-      readSector(metadata->buffer[j], file[j]);
+    if(sector_entry_buffer.sector_numbers[j]){
+      readSector(metadata->buffer[j * 512], sector_entry_buffer.sector_numbers[j]);
     } else {
       break;
     }

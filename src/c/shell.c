@@ -1,14 +1,18 @@
 #include "header/shell.h"
 
 void shell() {
-  char input_buf[128];
+  char input_buf[64];
   char path_str[128];
-  char command[64];
-  char arg1[64];
-  char arg2[64];
+  char command[32];
+  char arg1[32];
+  char arg2[32];
   int ret_code = 0;
   byte current_dir = FS_NODE_P_IDX_ROOT;
   while (true) {
+    clear(input_buf, 64);
+    clear(arg1, 32);
+    clear(arg2, 32);
+    clear(command, 32);
     printString("user@uSUSbuntuOS:");
     printCWD(path_str, current_dir);
     printString("$ ");
@@ -40,7 +44,7 @@ void command_type(char *command, byte *current_dir, char*arg1, char* arg2, int *
   } 
 
   else if (strcmp(command, "cat")) {
-    cat(current_dir, "a");
+    cat(current_dir, arg1, &ret_code);
   } 
   //aira
   else if (strcmp(command, "cp")) {
@@ -58,9 +62,6 @@ void argSplitter(char *input_buf, char *command, char* arg1, char *arg2){
   int now = 0;
   int k;
   int count = 0;
-  clear(command, 64);
-  clear(arg1, 64);
-  clear(arg2, 64);
   while(input_buf[i] != '\0') {
     if(count == 0){
       k = 0;
@@ -135,26 +136,29 @@ void cd(byte *parentIndex, char *dir) {
 void ls(byte parentIdx, char* arg1, int *ret_code) {
   struct node_filesystem node_fs_buffer;
   int i = 0;
-  int parentFound;
+  byte parentFound = FS_NODE_P_IDX_ROOT;
   //klo emg di root trs kosong print gaada aja
   //klo emg mau nge ls tp gaada baru retcode
   //cek dulu apakah arg1 nya ga nol?
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
-
-  if(arg1 == '\0'){
+  if(arg1[0] == '\0'){
     while (i < 64) {
       if (node_fs_buffer.nodes[i].parent_node_index == parentIdx) {
         printString(node_fs_buffer.nodes[i].name);
-        printString("\n");
+        printString("\r\n");
       }
-    i++;
+      i++;
     }
+    if(i == 64){
+      *ret_code = FS_R_NODE_NOT_FOUND;
+    }
+    return;
   }
   //kalo arg1 nya ga nol berarti ini nyari dulu node yg namanya sama
   for(i = 0; i < 64; i++) {
     if (strcmp(node_fs_buffer.nodes[i].name, arg1)){
-      parentFound = node_fs_buffer.nodes[i].parent_node_index;
+      parentFound = i;
       break;
     }
   }
@@ -168,7 +172,7 @@ void ls(byte parentIdx, char* arg1, int *ret_code) {
   for (i = 0; i < 64; i++) {
     if (node_fs_buffer.nodes[i].parent_node_index == parentFound){
       printString(node_fs_buffer.nodes[i].name);
-      printString("\n");
+      printString("\r\n");
     }
   }
 }
@@ -203,22 +207,20 @@ void mv(byte parentIdx, char *source, char *target) {
 	node_fs_buffer.nodes[i].parent_node_index = addressTarget;
 }
 
-void cat(byte parentIndex, char *filename) {
+void cat(byte parentIndex, char *filename, int *ret_code) {
   //diketahui parentIndexnya trs tinggal searching node mana yang p nya sama 
   // berarti itu ada di folder tsb cek namanya sama apa ga
   struct file_metadata fileInfo;
-	int ret_code = 0;
 
-  fileInfo.parent_index = parentIndex;
-  strcpy(fileInfo.node_name, filename);
-  read(&fileInfo, &ret_code);
-  error_code(ret_code);
-  if(ret_code != 0){
+  if(filename[0] == '\0'){
+    *ret_code = FS_R_NODE_NOT_FOUND;
     return;
   }
 
-  printString(fileInfo.buffer);
-  ///dapet sector number terus baca semuanya
+  fileInfo.parent_index = parentIndex;
+  memcpy(&fileInfo.node_name, filename, strlen(filename));
+  read(&fileInfo, &ret_code);
+  printString(&fileInfo.buffer);
 }
 
 void mkdir(byte cur_dir_idx, char *arg1, int *ret_code){

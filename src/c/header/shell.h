@@ -10,7 +10,7 @@ void command_type(char *command, byte *current_dir, char*arg1, char*arg2, int *r
 void argSplitter(char *input_buf, char *command, char* arg1, char *arg2);
 void cd(byte *parentIndex, char *dir);
 void ls(byte parentIndex, char *arg1, int *ret_code);
-void cat(byte parentIndex, char *path);
+void cat(byte parentIndex, char *arg1, int *ret_code);
 void cp(byte parentIndex, char *resourcePath, char *destinationPath);
 void printCWD(char *path_str, byte current_dir);
 void error_code(int error_code);
