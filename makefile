@@ -12,6 +12,7 @@ bootloader:
 kernel:
 	bcc -ansi -c -o out/kernel.o src/c/kernel.c
 	bcc -ansi -c -o out/std_lib.o src/c/std_lib.c
+	bcc -ansi -c -o out/shell.o src/c/shell.c
 	nasm -f as86 src/asm/kernel.asm -o out/kernel_asm.o
 	ld86 -o out/kernel -d out/*.o
 	dd if=out/kernel of=out/system.img bs=512 conv=notrunc seek=1

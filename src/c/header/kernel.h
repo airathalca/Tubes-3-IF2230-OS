@@ -1,6 +1,5 @@
 // Kernel header
 
-#include "std_type.h"
 #include "std_lib.h"
 #include "filesystem.h"
 
@@ -15,6 +14,7 @@ void fillKernelMap();
 void printString(char *string);
 void readString(char *string);
 void clearScreen();
+void welcome();
 
 void writeSector(byte *buffer, int sector_number);
 void readSector(byte *buffer, int sector_number);

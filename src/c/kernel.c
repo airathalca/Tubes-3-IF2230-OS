@@ -12,6 +12,12 @@ int main() {
     fillKernelMap();
     clearScreen();
     makeInterrupt21();
+    welcome();
+
+    shell();
+}
+
+void welcome(){
     interrupt(0x10, 0x0200, 0, 0, 0x0307);
     printString("       ____  _   _ ____  _                 _            ___  ____\r\n");
     interrupt(0x10, 0x0200, 0, 0, 0x0407);
@@ -26,12 +32,6 @@ int main() {
     printString("Welcome to uSUSbuntu OS\r\n");
     interrupt(0x10, 0x0200, 0, 0, 0x0A28 - 0x12);
     printString("Press enter any key to get started\r\n\n");
-    //wait for user input
-    while (true) {
-      interrupt(0x21, 1, buf, 0, 0);
-      interrupt(0x21, 0, buf, 0, 0);
-      interrupt(0x21, 0, "\r\n", 0, 0);
-    }
 }
 
 void handleInterrupt21(int AX, int BX, int CX, int DX) {

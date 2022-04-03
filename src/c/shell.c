@@ -7,8 +7,9 @@ void shell() {
 
   while (true) {
     printString("OSIF2230:");
-    printCWD(path_str, current_dir);
+    // printCWD(path_str, current_dir);
     printString("$ ");
+    printString("TESTHALO");
     readString(input_buf);
   }
 
