@@ -4,38 +4,44 @@ void shell() {
   char input_buf[64];
   char path_str[128];
   byte current_dir = FS_NODE_P_IDX_ROOT;
-
   while (true) {
-    printString("OSIF2230:");
-    // printCWD(path_str, current_dir);
+    printString("user@uSUSbuntu:");
+    printCWD(path_str, current_dir);
     printString("$ ");
-    printString("TESTHALO");
     readString(input_buf);
+    command(&input_buf, &current_dir);
+  }
+}
+
+void command(char *input_buf, byte *current_dir){
+  if (strcmp(input_buf, "cd")) {
+    cd(&current_dir, "a");
+  } 
+
+  else if(strcmp(input_buf, "clear")){
+    clearScreen();
   }
 
-  //kinan
-  if (strcmp(input_buf, "cd")) {
-    
-  } 
-  //beres
   else if (strcmp(input_buf, "ls")) {
-      
+      ls(current_dir);
   } 
-  //aing
+
   else if (strcmp(input_buf, "mv")) {
-
+    mv(current_dir, "test", "test2");
   } 
-  //aing
+
   else if (strcmp(input_buf, "mkdir")) {
-    
+    struct file_metadata buffer;
+    buffer.node_name[0] = 'a';
+    mkdir(current_dir, &buffer);
   } 
-  //beres
-  else if (strcmp(input_buf, "cat")) {
 
+  else if (strcmp(input_buf, "cat")) {
+    cat(current_dir, "a");
   } 
   //aira
   else if (strcmp(input_buf, "cp")) {
-
+    cp(current_dir, "a", "b");
   } 
   else {
       printString("Unknown command\r\n");
@@ -224,36 +230,43 @@ void printCWD(char* path_str, byte current_dir) {
   byte nodeIndex[64];
   int curLen = 0;
   int j = 0;
-  char *iteratorPath;
   int sizeNow;
+
   readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER);
   readSector(&node_fs_buffer.nodes[32], FS_NODE_SECTOR_NUMBER + 1);
   readSector(&sector_fs_buffer, FS_SECTOR_SECTOR_NUMBER);
-  //1. mane cari yang current_dir nya udah index ngab
-  nodeIndex[idx++] = current_dir;
-  parent = node_fs_buffer.nodes[current_dir].parent_node_index;
-  //simpen semuanya di nodeIndex
-  while(parent != FS_NODE_P_IDX_ROOT){
-    if (parent == (j % 64)) {
-      nodeIndex[idx++] = j;
-      parent = node_fs_buffer.nodes[j].parent_node_index;
+  //kosongin dulu
+  clear(path_str, 128);
+  path_str[0] = '/';
+  if(current_dir == FS_NODE_P_IDX_ROOT){
+    printString(path_str);
+    return;
+  }
+  //
+
+}
+
+void readPath(char *path_str, byte current_dir, struct node_filesystem node_fs_buffer, struct sector_filesystem sector_fs_buffer){
+  char *node_name;
+  int node_idx;
+  int parent_idx = current_dir;
+
+  for(node_idx = 0; node_idx < 64; node_idx++){
+    if(node_fs_buffer.nodes[node_idx].parent_node_index == current_dir){
+      break;
     }
-    j++;
   }
-  //copy semuanya ke path_str
-  while(idx >= 0) {
-    iteratorPath = node_fs_buffer.nodes[nodeIndex[idx]].name;
-    sizeNow = strlen(iteratorPath);
-    //sizenow, sizenow + 1, sizenow + 2
-    iteratorPath[sizeNow + 1] = "/";
-    //tambahin nol biar nandain null byte
-    iteratorPath[sizeNow + 2] = '\0';
-    strcpy(path_str + curLen, iteratorPath);
-    curLen += (sizeNow + 1);
-    idx--;
+
+  path_str[0] = '/';
+  //klo root
+  if(parent_idx == FS_NODE_P_IDX_ROOT){
+    
+    printString(path_str);
+    return;
   }
-  strcpy(path_str + curLen, iteratorPath);
-  printString(path_str);
+
+  strcpy(node_name, node_fs_buffer.nodes[node_idx].name);
+
 }
 
 void error_code(int err_code){

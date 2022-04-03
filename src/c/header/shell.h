@@ -6,6 +6,8 @@
 #define MAX_LEN 25
 
 void shell();
+void command(char *input_buf, byte *current_dir);
+void argSplitter();
 
 void commandParser(char *command, char *argument);
 
@@ -22,5 +24,8 @@ void printCWD(char *path_str, byte current_dir);
 void error_code(int error_code);
 
 void mkdir(byte parentIndex, struct file_metadata *fileInfo);
+
+void mv(byte parentIdx, char *source, char *target);
+void readPath(char *path_str, byte current_dir, struct node_filesystem node_fs_buffer, struct sector_filesystem secotr_fs_buffer);
 
 #endif
