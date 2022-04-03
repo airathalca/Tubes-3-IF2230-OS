@@ -1,31 +1,30 @@
 #include "header/shell.h"
 
 void shell() {
-  char input_buf[64];
+  char input_buf[128];
   char path_str[128];
   byte current_dir = FS_NODE_P_IDX_ROOT;
   char command[64];
   char arg1[64];
   char arg2[64];
   while (true) {
-    printString("user@uSUSbuntu:");
+    printString("user@uSUSbuntuOS:");
     printCWD(path_str, current_dir);
     printString("$ ");
     readString(input_buf);
     argSplitter(&input_buf, &command, &arg1, &arg2);
-    printString(input_buf);
-    printString("\r\n");
     printString(command);
     printString("\r\n");
     printString(arg1);
     printString("\r\n");
     printString(arg2);
     printString("\r\n");
-    // command(&input_buf, &current_dir);
+    // printString(command);
+    command_type(command, current_dir);
   }
 }
 
-void command(char *input_buf, byte *current_dir){
+void command_type(char *input_buf, byte *current_dir){
   if (strcmp(input_buf, "cd")) {
     cd(&current_dir, "a");
   } 
@@ -58,6 +57,7 @@ void command(char *input_buf, byte *current_dir){
   else {
       printString("Unknown command\r\n");
   }
+  error_code(0);
 }
 
 void argSplitter(char *input_buf, char *command, char* arg1, char *arg2){
@@ -70,32 +70,28 @@ void argSplitter(char *input_buf, char *command, char* arg1, char *arg2){
   clear(arg1, 64);
   clear(arg2, 64);
   while(input_buf[i] != '\0') {
-    while(input_buf[i] == ' '){
-      if(count == 0){
-        k = 0;
-        while(now < i) {
-          command[k] = input_buf[now];
-          k++;
-          now++;
-        }
-      } else if (count == 1) {
-        k = 0;
-        while(now < i) {
-          arg1[k] = input_buf[now];
-          k++;
-          now++;
-        }
-      }
-      now++;
-      i++;
-      count++;
-    }
-    if(count == 2){
+    if(count == 0){
       k = 0;
-      while(input_buf[now] != '\0'){
-        arg2[k] = input_buf[now];
+      while(input_buf[i] != ' ' && input_buf[i] != '\0'){
+        command[k] = input_buf[i];
         k++;
-        now++;
+        i++;
+      }
+      count++;
+    }else if(count == 1){
+      k = 0;
+      while(input_buf[i] != ' ' && input_buf[i] != '\0'){
+        arg1[k] = input_buf[i];
+        k++;
+        i++;
+      }
+      count++;
+    }else if(count == 2){
+      k = 0;
+      while(input_buf[i] != ' ' && input_buf[i] != '\0'){
+        arg2[k] = input_buf[i];
+        k++;
+        i++;
       }
       count++;
     }
