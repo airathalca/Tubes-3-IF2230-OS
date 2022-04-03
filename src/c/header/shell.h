@@ -26,6 +26,6 @@ void error_code(int error_code);
 void mkdir(byte parentIndex, struct file_metadata *fileInfo);
 
 void mv(byte parentIdx, char *source, char *target);
-void readPath(char *path_str, byte current_dir, struct node_filesystem node_fs_buffer, struct sector_filesystem secotr_fs_buffer);
+byte readPath(char *path_str, byte current_dir, struct node_filesystem node_fs_buffer, struct sector_filesystem secotr_fs_buffer);
 
 #endif

@@ -278,52 +278,67 @@ void cp(byte parentIndex, char *resourcePath, char *destinationPath) {
 
 void printCWD(char* path_str, byte current_dir) {
   //current_dir ini udah byte node anjir
+  int i = 0;
+  int nodeCount = 0;
+  int curlen = 0;
+  byte nodeIndex[64];
+  byte parent = 0;
   struct node_filesystem node_fs_buffer;
   struct sector_filesystem sector_fs_buffer;
-  int i = 0;
-  int idx = 0;
-  byte parent = 0;
-  byte nodeIndex[64];
-  int curLen = 0;
-  int j = 0;
-  int sizeNow;
 
   readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER);
   readSector(&node_fs_buffer.nodes[32], FS_NODE_SECTOR_NUMBER + 1);
   readSector(&sector_fs_buffer, FS_SECTOR_SECTOR_NUMBER);
   //kosongin dulu
   clear(path_str, 128);
-  path_str[0] = '/';
+  path_str[curlen++] = '/';
   if(current_dir == FS_NODE_P_IDX_ROOT){
     printString(path_str);
     return;
   }
-  //
-
-}
-
-void readPath(char *path_str, byte current_dir, struct node_filesystem node_fs_buffer, struct sector_filesystem sector_fs_buffer){
-  char *node_name;
-  int node_idx;
-  int parent_idx = current_dir;
-
-  for(node_idx = 0; node_idx < 64; node_idx++){
-    if(node_fs_buffer.nodes[node_idx].parent_node_index == current_dir){
-      break;
+  //masukan current dir ke array of node index
+  nodeIndex[nodeCount++] = current_dir;
+  // misal skrg ga di root tp di /a/b/c
+  //loop sampe parentnya oxFF
+  parent = node_fs_buffer.nodes[current_dir].parent_node_index;
+  while(parent != FS_NODE_P_IDX_ROOT){
+    nodeIndex[nodeCount++] = parent;
+    parent = node_fs_buffer.nodes[parent].parent_node_index;
+  }
+  //parent udah 0xFF dan skrg nodeIndex berisi node dari awal sampe akhir tp kebalik
+  //copy namanya dari awal sampe akhir curlen skrg udah 1
+  while(nodeCount > 0){
+    strcpy(path_str + curlen, node_fs_buffer.nodes[nodeIndex[nodeCount]].name);
+    nodeCount--;
+    curlen += strlen(node_fs_buffer.nodes[nodeIndex[nodeCount]].name);
+    if(nodeCount > 0){
+      path_str[curlen++] = '/';
     }
   }
-
-  path_str[0] = '/';
-  //klo root
-  if(parent_idx == FS_NODE_P_IDX_ROOT){
-    
-    printString(path_str);
-    return;
-  }
-
-  strcpy(node_name, node_fs_buffer.nodes[node_idx].name);
-
 }
+
+// byte readPath(char *path_str, struct node_filesystem node_fs_buffer, struct sector_filesystem sector_fs_buffer){
+//   char *node_name;
+//   int node_idx;
+//   int parent_idx = current_dir;
+
+//   for(node_idx = 0; node_idx < 64; node_idx++){
+//     if(node_fs_buffer.nodes[node_idx].parent_node_index == current_dir){
+//       break;
+//     }
+//   }
+
+//   path_str[0] = '/';
+//   //klo root
+//   if(parent_idx == FS_NODE_P_IDX_ROOT){
+    
+//     printString(path_str);
+//     return;
+//   }
+
+//   strcpy(node_name, node_fs_buffer.nodes[node_idx].name);
+
+// }
 
 void error_code(int err_code){
   switch (err_code)
