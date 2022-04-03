@@ -49,7 +49,7 @@ void command_type(char *command, byte *current_dir, char*arg1, char* arg2, int *
   else {
       printString("Unknown command\r\n");
   }
-  error_code(0);
+  error_code(ret_code);
 }
 
 void argSplitter(char *input_buf, char *command, char* arg1, char *arg2){
@@ -204,7 +204,8 @@ void mv(byte parentIdx, char *source, char *target) {
 }
 
 void cat(byte parentIndex, char *filename) {
-  //diketahui parentIndexnya trs tinggal searching node mana yang p nya sama berarti itu ada di folder tsb cek namanya sama apa ga
+  //diketahui parentIndexnya trs tinggal searching node mana yang p nya sama 
+  // berarti itu ada di folder tsb cek namanya sama apa ga
   struct file_metadata fileInfo;
 	int ret_code = 0;
 
@@ -222,14 +223,12 @@ void cat(byte parentIndex, char *filename) {
 
 void mkdir(byte cur_dir_idx, char *arg1, int *ret_code){
   //cek dulu apakah ada folder yang namanya sama
-  
   struct file_metadata fileinfo;
-
+  fileinfo.parent_index = cur_dir_idx;
+  fileinfo.filesize = 0;
+  memcpy(&fileinfo.node_name, arg1, strlen(arg1));
   //udah ada isinya si fileinfonya;
-  // write(fileInfo, &ret_code);
-  if(ret_code != 0){
-    return;
-  }
+  write(&fileinfo, ret_code);
 }
 
 void cp(byte parentIndex, char *resourcePath, char *destinationPath) {
@@ -333,19 +332,19 @@ void error_code(int err_code){
   switch (err_code)
   {
   case -1:
-    printString("Unknown Error\n");
+    printString("Unknown Error\r\n");
     break;
   case 2:
-    printString("This is directory not file\n");
+    printString("This is directory not file\r\n");
     break;
   case 3:
-    printString("File already exists\n");
+    printString("File already exists\r\n");
     break;
   case 4:
-    printString("Storage is full\n");
+    printString("Storage is full\r\n");
     break;
   case 7:
-    printString("No such file or directory\n");
+    printString("No such file or directory\r\n");
     break;
   default:
     break;

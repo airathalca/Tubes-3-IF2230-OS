@@ -120,13 +120,47 @@ void clearScreen() {
   interrupt(0x10, 0x0600, 0x0f00, 0, 0x184f);
 }
 
-void writeSector(byte *buffer, int sector_number) {
-  interrupt(0x13, 0x0201, buffer, div(sector_number, 36) << 8 + mod(sector_number, 18) + 1, mod(div(sector_number, 18), 2) << 8);
+void readSector(byte *buffer, int sector_number) {
+  int sector_read_count = 0x01;
+    int cylinder, sector;
+    int head, drive;
+
+    cylinder = div(sector_number, 36) << 8; // CH
+    sector   = mod(sector_number, 18) + 1;  // CL
+
+    head  = mod(div(sector_number, 18), 2) << 8; // DH
+    drive = 0x00;                                // DL
+
+    interrupt(
+        0x13,                       // Interrupt number
+        0x0200 | sector_read_count, // AX
+        buffer,                     // BX
+        cylinder | sector,          // CX
+        head | drive                // DX
+    );
 }
 
-void readSector(byte *buffer, int sector_number) {
-  interrupt(0x13, 0x0301, buffer, div(sector_number, 36) << 8 + mod(sector_number, 18) + 1, mod(div(sector_number, 18), 2) << 8);
+void writeSector(byte *buffer, int sector_number) {
+  int sector_read_count = 0x01;
+    int cylinder, sector;
+    int head, drive;
+
+    cylinder = div(sector_number, 36) << 8; // CH
+    sector   = mod(sector_number, 18) + 1;  // CL
+
+    head  = mod(div(sector_number, 18), 2) << 8; // DH
+    drive = 0x00;                                // DL
+
+    interrupt(
+        0x13,                       // Interrupt number
+        0x0300 | sector_read_count, // AX
+        buffer,                     // BX
+        cylinder | sector,          // CX
+        head | drive                // DX
+    );
+
 }
+
 
 void fillKernelMap(){
   struct map_filesystem map_fs_buffer;
@@ -231,10 +265,11 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
   unsigned int sizenow;
 
   readSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER);
-  readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER);
+  readSector(&node_fs_buffer.nodes, FS_NODE_SECTOR_NUMBER);
   readSector(&node_fs_buffer.nodes[32], FS_NODE_SECTOR_NUMBER + 1);
   readSector(&sector_fs_buffer, FS_SECTOR_SECTOR_NUMBER);
 
+  printString("1");
   // 1. Cari node dengan nama dan lokasi parent yang sama pada node.
   //    Jika tidak ditemukan kecocokan, lakukan proses ke-2.
   //    Jika ditemukan node yang cocok, tuliskan retcode 
@@ -246,6 +281,13 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
     }
     i++;
   }
+  // printString(node_fs_buffer.nodes[i].name);
+  printString("\r\n");
+  if(strcmp(node_fs_buffer.nodes[i].name, metadata->node_name)){
+    printString("AAAAAA\r\n");
+  }
+  printString(&metadata->node_name);
+  printString("\r\n");
   if (found) {
     *return_code = FS_W_FILE_ALREADY_EXIST;
     return;
@@ -256,6 +298,7 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
     return;
   }
 
+  printString("2");
   // 2. Cari entri kosong pada filesystem node dan simpan indeks.
   //    Jika ada entry kosong, simpan indeks untuk penulisan.
   //    Jika tidak ada entry kosong, tuliskan FS_W_MAXIMUM_NODE_ENTRY
@@ -276,7 +319,8 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
   // 3. Cek dan pastikan entry node pada indeks P adalah folder.
   //    Jika pada indeks tersebut adalah file atau entri kosong,
   //    Tuliskan retcode FS_W_INVALID_FOLDER dan keluar.
-  if (node_fs_buffer.nodes[metadata->parent_index].sector_entry_index != FS_NODE_S_IDX_FOLDER) {
+  printString("TEST");
+  if (metadata->parent_index != FS_NODE_P_IDX_ROOT && node_fs_buffer.nodes[metadata->parent_index].sector_entry_index != FS_NODE_S_IDX_FOLDER) {
     *return_code = FS_W_INVALID_FOLDER;
     return;
   }
@@ -289,6 +333,8 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
   //    Jika ukuran filesize melebihi 8192 bytes, tuliskan retcode
   //    FS_W_NOT_ENOUGH_STORAGE dan keluar.
   //    Jika tersedia empty space, lanjutkan langkah ke-5.
+
+  printString(&metadata->filesize);
 
   if (metadata->filesize > 8192) {
     *return_code = FS_W_NOT_ENOUGH_STORAGE;
@@ -307,7 +353,9 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
     *return_code = FS_W_NOT_ENOUGH_STORAGE;
     return;
   }
-  
+
+  printString("3");
+
   // 5. Cek pada filesystem sector apakah terdapat entry yang masih kosong.
   //    Jika ada entry kosong dan akan menulis file, simpan indeks untuk 
   //    penulisan.
@@ -354,6 +402,9 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
   //    menggunakan writeSector() pada sektor yang sesuai
   // 9. Kembalikan retcode FS_SUCCESS
 
+
+  printString("4");
+
   strcpy(node_fs_buffer.nodes[emptyNode].name, metadata->buffer);
   node_fs_buffer.nodes[emptyNode].parent_node_index = metadata->parent_index;
 
@@ -382,8 +433,11 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
     memcpy(&sector_fs_buffer.sector_list[i], &buffer, k);
   }
 
+  printString("5");
+
   writeSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER);
   writeSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER);
   writeSector(&node_fs_buffer.nodes[32], FS_NODE_SECTOR_NUMBER + 1);
   writeSector(&sector_fs_buffer, FS_SECTOR_SECTOR_NUMBER);
+  printString("6");
 }
