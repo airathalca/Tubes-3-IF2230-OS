@@ -89,12 +89,11 @@ void readString(char *string) {
             printString("\r\n");
 
         } else if (c == '\b') { //backspace
-            interrupt(0x10, 0x0E00 + '\b', 0, 0, 0);
-            interrupt(0x10, 0x0E00 + ' ', 0, 0, 0);
-            interrupt(0x10, 0x0E00 + '\b', 0, 0, 0);
-            string[i] = '\0';
-            
             if (i > 0){
+              interrupt(0x10, 0x0E00 + '\b', 0, 0, 0);
+              interrupt(0x10, 0x0E00 + ' ', 0, 0, 0);
+              interrupt(0x10, 0x0E00 + '\b', 0, 0, 0);
+              string[i] = '\0';
               i--;
             }
 

@@ -7,7 +7,7 @@
 
 void shell();
 void command(char *input_buf, byte *current_dir);
-void argSplitter();
+void argSplitter(char *input_buf, char *command, char* arg1, char *arg2);
 
 void commandParser(char *command, char *argument);
 

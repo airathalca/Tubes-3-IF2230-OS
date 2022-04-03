@@ -4,12 +4,24 @@ void shell() {
   char input_buf[64];
   char path_str[128];
   byte current_dir = FS_NODE_P_IDX_ROOT;
+  char command[64];
+  char arg1[64];
+  char arg2[64];
   while (true) {
     printString("user@uSUSbuntu:");
     printCWD(path_str, current_dir);
     printString("$ ");
     readString(input_buf);
-    command(&input_buf, &current_dir);
+    argSplitter(&input_buf, &command, &arg1, &arg2);
+    printString("\r\n");
+    printString(input_buf);
+    printString("\r\n");
+    printString(command);
+    // printString("\r\n");
+    // printString(arg1);
+    // printString("\r\n");
+    // printString(arg2);
+    // command(&input_buf, &current_dir);
   }
 }
 
@@ -47,6 +59,41 @@ void command(char *input_buf, byte *current_dir){
       printString("Unknown command\r\n");
   }
 }
+
+void argSplitter(char *input_buf, char *command, char* arg1, char *arg2){
+  int size;
+  int i = 0;
+  int k = 0;
+  int count = 0;
+  clear(command, 64);
+  clear(arg1, 64);
+  clear(arg2, 64);
+  while(input_buf[i] != '\0') {
+    while(input_buf[i] == ' '){
+      if(count == 0){
+        while(k < i) {
+          command[k] = input_buf[k];
+          k++;
+        }
+      } else if (count == 1) {
+        while(k < i) {
+          arg1[k] = input_buf[k];
+          k++;
+        }
+      } else {
+        while(k < i){
+          arg2[k] = input_buf[k];
+          k++;
+        }
+      }
+      i++;
+      k++;
+      count++;
+    }
+    i++;
+  }
+}
+
 
 void cd(byte *parentIndex, char *dir) {
   struct node_filesystem node_fs_buffer;
