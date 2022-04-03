@@ -3,55 +3,47 @@
 void shell() {
   char input_buf[128];
   char path_str[128];
-  byte current_dir = FS_NODE_P_IDX_ROOT;
   char command[64];
   char arg1[64];
   char arg2[64];
+  int ret_code = 0;
+  byte current_dir = FS_NODE_P_IDX_ROOT;
   while (true) {
     printString("user@uSUSbuntuOS:");
     printCWD(path_str, current_dir);
     printString("$ ");
     readString(input_buf);
     argSplitter(&input_buf, &command, &arg1, &arg2);
-    printString(command);
-    printString("\r\n");
-    printString(arg1);
-    printString("\r\n");
-    printString(arg2);
-    printString("\r\n");
-    // printString(command);
-    command_type(command, current_dir);
+    command_type(&command, &current_dir, &arg1, &arg2, &ret_code);
   }
 }
 
-void command_type(char *input_buf, byte *current_dir){
-  if (strcmp(input_buf, "cd")) {
+void command_type(char *command, byte *current_dir, char*arg1, char* arg2, int *ret_code){
+  if (strcmp(command, "cd")) {
     cd(&current_dir, "a");
   } 
 
-  else if(strcmp(input_buf, "clear")){
+  else if(strcmp(command, "clear")){
     clearScreen();
   }
 
-  else if (strcmp(input_buf, "ls")) {
-      ls(current_dir);
+  else if (strcmp(command, "ls")) {
+      ls(current_dir, arg1, ret_code);
   } 
 
-  else if (strcmp(input_buf, "mv")) {
+  else if (strcmp(command, "mv")) {
     mv(current_dir, "test", "test2");
   } 
 
-  else if (strcmp(input_buf, "mkdir")) {
-    struct file_metadata buffer;
-    buffer.node_name[0] = 'a';
-    mkdir(current_dir, &buffer);
+  else if (strcmp(command, "mkdir")) {
+    mkdir(current_dir, arg1, &ret_code);
   } 
 
-  else if (strcmp(input_buf, "cat")) {
+  else if (strcmp(command, "cat")) {
     cat(current_dir, "a");
   } 
   //aira
-  else if (strcmp(input_buf, "cp")) {
+  else if (strcmp(command, "cp")) {
     cp(current_dir, "a", "b");
   } 
   else {
@@ -140,20 +132,44 @@ void cd(byte *parentIndex, char *dir) {
 	}
 }
 
-void ls(byte parentIdx) {
+void ls(byte parentIdx, char* arg1, int *ret_code) {
   struct node_filesystem node_fs_buffer;
   int i = 0;
-
+  int parentFound;
+  //klo emg di root trs kosong print gaada aja
+  //klo emg mau nge ls tp gaada baru retcode
+  //cek dulu apakah arg1 nya ga nol?
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
-    
-  while (i < 64) {
-    if (node_fs_buffer.nodes[i].parent_node_index == parentIdx && 
-    node_fs_buffer.nodes[i].name[0] != '\0') {
+
+  if(arg1 == '\0'){
+    while (i < 64) {
+      if (node_fs_buffer.nodes[i].parent_node_index == parentIdx) {
+        printString(node_fs_buffer.nodes[i].name);
+        printString("\n");
+      }
+    i++;
+    }
+  }
+  //kalo arg1 nya ga nol berarti ini nyari dulu node yg namanya sama
+  for(i = 0; i < 64; i++) {
+    if (strcmp(node_fs_buffer.nodes[i].name, arg1)){
+      parentFound = node_fs_buffer.nodes[i].parent_node_index;
+      break;
+    }
+  }
+
+  if(i == 64){
+    *ret_code = FS_R_NODE_NOT_FOUND;
+    return;
+  }
+
+  //cari lagi sesuai parent idx yang baru
+  for (i = 0; i < 64; i++) {
+    if (node_fs_buffer.nodes[i].parent_node_index == parentFound){
       printString(node_fs_buffer.nodes[i].name);
       printString("\n");
     }
-  i++;
   }
 }
 
@@ -187,27 +203,6 @@ void mv(byte parentIdx, char *source, char *target) {
 	node_fs_buffer.nodes[i].parent_node_index = addressTarget;
 }
 
-void lsWithDir(byte parentIdx, char *path) {
-  struct node_filesystem node_fs_buffer;
-	int i = 0;
-
-	readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
-	readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
-
-  while (i < 64) {
-    if (node_fs_buffer.nodes[i].parent_node_index == parentIdx &&
-    strcmp(node_fs_buffer.nodes[i].name, path) &&
-    node_fs_buffer.nodes[i].sector_entry_index == FS_NODE_S_IDX_FOLDER) {
-      ls(i);
-      break;
-    }
-    i++;
-  }
-  if (i == 64) {
-    printString("Folder Tidak Ditemukan.\n");
-  }
-}
-
 void cat(byte parentIndex, char *filename) {
   //diketahui parentIndexnya trs tinggal searching node mana yang p nya sama berarti itu ada di folder tsb cek namanya sama apa ga
   struct file_metadata fileInfo;
@@ -225,18 +220,16 @@ void cat(byte parentIndex, char *filename) {
   ///dapet sector number terus baca semuanya
 }
 
-void mkdir(byte cur_dir_idx, struct file_metadata *fileInfo){
-  //udah ada isinya si fileinfonya;
-  int ret_code;
+void mkdir(byte cur_dir_idx, char *arg1, int *ret_code){
+  //cek dulu apakah ada folder yang namanya sama
+  
+  struct file_metadata fileinfo;
 
-  fileInfo->parent_index = cur_dir_idx;
-  fileInfo->filesize = 0;
-  write(fileInfo, &ret_code);
-  error_code(ret_code);
+  //udah ada isinya si fileinfonya;
+  // write(fileInfo, &ret_code);
   if(ret_code != 0){
     return;
   }
-  printString("Folder berhasil dibuat");
 }
 
 void cp(byte parentIndex, char *resourcePath, char *destinationPath) {
