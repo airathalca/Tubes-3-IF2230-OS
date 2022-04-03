@@ -89,6 +89,7 @@ void readString(char *string) {
             printString("\r\n");
 
         } else if (c == '\b') { //backspace
+
             if (i > 0){
               interrupt(0x10, 0x0E00 + '\b', 0, 0, 0);
               interrupt(0x10, 0x0E00 + ' ', 0, 0, 0);
@@ -97,7 +98,7 @@ void readString(char *string) {
               i--;
             }
 
-        }else if(c == '\t'){
+        } else if (c == '\t') {
           for(j = 0; j < 4; j++){
             string[i++] = ' ';
             interrupt(0x10, 0x0E00 + ' ', 0, 0, 0);

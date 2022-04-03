@@ -13,14 +13,14 @@ void shell() {
     printString("$ ");
     readString(input_buf);
     argSplitter(&input_buf, &command, &arg1, &arg2);
-    printString("\r\n");
     printString(input_buf);
     printString("\r\n");
     printString(command);
-    // printString("\r\n");
-    // printString(arg1);
-    // printString("\r\n");
-    // printString(arg2);
+    printString("\r\n");
+    printString(arg1);
+    printString("\r\n");
+    printString(arg2);
+    printString("\r\n");
     // command(&input_buf, &current_dir);
   }
 }
@@ -63,7 +63,8 @@ void command(char *input_buf, byte *current_dir){
 void argSplitter(char *input_buf, char *command, char* arg1, char *arg2){
   int size;
   int i = 0;
-  int k = 0;
+  int now = 0;
+  int k;
   int count = 0;
   clear(command, 64);
   clear(arg1, 64);
@@ -71,23 +72,31 @@ void argSplitter(char *input_buf, char *command, char* arg1, char *arg2){
   while(input_buf[i] != '\0') {
     while(input_buf[i] == ' '){
       if(count == 0){
-        while(k < i) {
-          command[k] = input_buf[k];
+        k = 0;
+        while(now < i) {
+          command[k] = input_buf[now];
           k++;
+          now++;
         }
       } else if (count == 1) {
-        while(k < i) {
-          arg1[k] = input_buf[k];
+        k = 0;
+        while(now < i) {
+          arg1[k] = input_buf[now];
           k++;
-        }
-      } else {
-        while(k < i){
-          arg2[k] = input_buf[k];
-          k++;
+          now++;
         }
       }
+      now++;
       i++;
-      k++;
+      count++;
+    }
+    if(count == 2){
+      k = 0;
+      while(input_buf[now] != '\0'){
+        arg2[k] = input_buf[now];
+        k++;
+        now++;
+      }
       count++;
     }
     i++;
