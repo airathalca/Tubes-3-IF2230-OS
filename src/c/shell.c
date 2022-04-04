@@ -24,7 +24,7 @@ void shell() {
 
 void command_type(char *command, byte *current_dir, char*arg1, char* arg2, int *ret_code){
   if (strcmp(command, "cd")) {
-    cd(&current_dir, "a");
+    cd(current_dir, arg1, ret_code);
   } 
 
   else if(strcmp(command, "clear")){
@@ -94,44 +94,78 @@ void argSplitter(char *input_buf, char *command, char* arg1, char *arg2){
 }
 
 
-void cd(byte *parentIndex, char *dir) {
+void cd(byte *parentIndex, char *dir, int *ret_code) {
   struct node_filesystem node_fs_buffer;
   char temp_str[128];
   int i;
   bool found = false;
+  int cur_idx = *parentIndex;
 
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
 	readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
 
 	clear(temp_str, 128);
+  
+  // kalo gaada dir nya
+  if(dir[0] == '\0'){
+    *ret_code = FS_R_NODE_NOT_FOUND;
+    return;
+  }
 
-	while (*dir != '\0') {
-		if (*dir == '/') {
-			i = 0;
-			while (i < 64 && !found) {
-				if (node_fs_buffer.nodes[i].sector_entry_index == FS_NODE_S_IDX_FOLDER && node_fs_buffer.nodes[i].parent_node_index == *parentIndex && strcmp(node_fs_buffer.nodes[i].name, temp_str)) {
-					found = true;
-				} else {
-					i++;
-				}
-			}
+  //masalah absolute pathing
+  if(dir[0] == '/'){
+    //placeholder
+    *ret_code = FS_MAP_SECTOR_NUMBER;
+    return;
+  }
 
-			if (found) {
-				*parentIndex = i;
+  //balik ke parent
+  if(dir[0] == '.' && dir[1] == '.'){
+    if(cur_idx == FS_NODE_P_IDX_ROOT){
+      return;
+    }
+    *parentIndex = node_fs_buffer.nodes[cur_idx].parent_node_index;
+    *ret_code = FS_SUCCESS;
+    return;
+  }
+  //if ada dir nya
+  for(i = 0; i < 64; i++) {
+    if(strcmp(node_fs_buffer.nodes[i].name, dir) && node_fs_buffer.nodes[i].parent_node_index == cur_idx){
+      *parentIndex = i;
+      break;
+    }
+  }
 
-			} else {
-				error_code(7);
-				break;
-			}
+  *ret_code = FS_SUCCESS;
+  return;
 
-			clear(temp_str, 128);
+	// while (*dir != '\0') {
+	// 	if (dir[0] == '/') {
+	// 		i = 0;
+	// 		while (i < 64 && !found) {
+	// 			if (node_fs_buffer.nodes[i].sector_entry_index == FS_NODE_S_IDX_FOLDER && node_fs_buffer.nodes[i].parent_node_index == *parentIndex && strcmp(node_fs_buffer.nodes[i].name, temp_str)) {
+	// 				found = true;
+	// 			} else {
+	// 				i++;
+	// 			}
+	// 		}
 
-		} else {
-			temp_str[strlen(temp_str)] = *dir;
-		}
+	// 		if (found) {
+	// 			*parentIndex = i;
 
-		dir++;
-	}
+	// 		} else {
+	// 			error_code(7);
+	// 			break;
+	// 		}
+
+	// 		clear(temp_str, 128);
+
+	// 	} else {
+	// 		temp_str[strlen(temp_str)] = *dir;
+	// 	}
+
+	// 	dir++;
+	// }
 }
 
 void ls(byte parentIdx, char* arg1, int *ret_code) {
@@ -145,7 +179,7 @@ void ls(byte parentIdx, char* arg1, int *ret_code) {
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
   if(arg1[0] == '\0'){
     while (i < 64) {
-      if (node_fs_buffer.nodes[i].parent_node_index == parentIdx) {
+      if (strlen(node_fs_buffer.nodes[i].name) > 0 && node_fs_buffer.nodes[i].parent_node_index == parentIdx) {
         printString(node_fs_buffer.nodes[i].name);
         printString("\r\n");
       }
@@ -203,7 +237,7 @@ void mv(byte parentIdx, char *source, char *target) {
 		return;
 	}
 
-	cd(&addressTarget, target); // target berbentuk absolute dir
+	// cd(&addressTarget, target); // target berbentuk absolute dir
 
 	node_fs_buffer.nodes[i].parent_node_index = addressTarget;
 }
