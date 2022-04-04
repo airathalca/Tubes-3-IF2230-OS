@@ -37,8 +37,7 @@ void command_type(char *command, byte *current_dir, char*arg1, char* arg2, enum 
   } 
 
   else if (strcmp(command, "mv")) {
-    printString(command);
-    mv(current_dir, arg1, arg2, &ret_code);
+    mv(*current_dir, arg1, arg2, &ret_code);
   }
 
   else if (strcmp(command, "mkdir")) {
@@ -206,29 +205,69 @@ void mv(byte parentIndex, char *source, char *target, enum fs_retcode *ret_code)
       found = true;
     }
   }
-
   if(!found){
     *ret_code = FS_R_NODE_NOT_FOUND;
     return;
   }
 
+    printString("2");
+
   // //isi fileinfo
   fileinfo->parent_index = parentIndex;
+  printHexa(fileinfo->parent_index);
    if(strlen(source) > 13){
     *ret_code = FS_W_NOT_ENOUGH_STORAGE;
     return;
   }
+
+  printString("3");
+
   strcpy(fileinfo->node_name, source);
+  // printString("4");
   read(fileinfo, ret_code);
+
   // //folder udah kesisi tinggal cek ada yang namanya sama ga di root
   // //skrg bisa mindahin ke folder atau root atau abs
   // //root
-  if(target[0] = '/'){
+  if(target[0] == '/'){
+    printString("AA");
     fileinfo->parent_index = FS_NODE_P_IDX_ROOT;
-    strcpy(fileinfo->node_name, target + 1);
+    if(target[1] != '\0'){
+      strcpy(fileinfo->node_name, target+1);
+    }
     printString(fileinfo->node_name);
+    node_fs_buffer.nodes[nodeFound].parent_node_index = fileinfo->parent_index;
+  }
+  else if(target[0] == '.' && target[1] == '.' && target[2] == '/'){
+    //cari juga nama yang sama
+    if(parentIndex != FS_NODE_P_IDX_ROOT){
+      ROOT = node_fs_buffer.nodes[parentIndex].parent_node_index;
+    }
+    if(target[3] != '\0'){
+      strcpy(fileinfo->node_name, target+3);
+    }
+    printString(fileinfo->node_name);
+    fileinfo->parent_index = ROOT;
+    node_fs_buffer.nodes[nodeFound].parent_node_index = ROOT;
+  }else{
+    // pindahin ke dalem folder cari index si foldernya
+    for(i = 0; i < 64; i++){
+      if(node_fs_buffer.nodes[i].parent_node_index == parentIndex && strcmp(node_fs_buffer.nodes[i].name, target)){
+        ROOT = i;
+        break;
+      }
+    }
+    if(i == 64){
+      *ret_code = FS_R_NODE_NOT_FOUND;
+      return;
+    }
+    fileinfo->parent_index = ROOT;
+    node_fs_buffer.nodes[nodeFound].parent_node_index = ROOT;
+    strcpy(fileinfo->node_name, target);
   }
   write(fileinfo, ret_code);
+  writeSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
+  writeSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
 }
 
 bool checkArgs(char *filename, int *ret_code) {

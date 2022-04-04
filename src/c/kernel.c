@@ -7,8 +7,6 @@
 #include "header/kernel.h"
 
 int main() {
-    char buf[128];
-    //call the bootloader
     fillKernelMap();
     clearScreen();
     makeInterrupt21();
@@ -18,20 +16,6 @@ int main() {
 }
 
 void welcome(){
-    // interrupt(0x10, 0x0200, 0, 0, 0x0307);
-    // printString("       ____  _   _ ____  _                 _            ___  ____\r\n");
-    // interrupt(0x10, 0x0200, 0, 0, 0x0407);
-    // printString(" _   _/ ___|| | | / ___|| |__  _   _ _ __ | |_ _   _   / _ \\/ ___|\r\n");
-    // interrupt(0x10, 0x0200, 0, 0, 0x0507);
-    // printString("| | | \\___ \\| | | \\___ \\| '_ \\| | | | '_ \\| __| | | | | | | \\___ \\\r\n");
-    // interrupt(0x10, 0x0200, 0, 0, 0x0607);
-    // printString("| |_| |___) | |_| |___) | |_) | |_| | | | | |_| |_| | | |_| |___) |\r\n");
-    // interrupt(0x10, 0x0200, 0, 0, 0x0707);
-    // printString(" \\__,_|____/ \\___/|____/|_.__/ \\__,_|_| |_|\\__|\\__,_|  \\___/|____/\r");
-    // interrupt(0x10, 0x0200, 0, 0, 0x0928 - 0x0C);
-    // printString("Welcome to uSUSbuntu OS\r\n");
-    // interrupt(0x10, 0x0200, 0, 0, 0x0A28 - 0x12);
-    printString("Halo\r\n\n");
 }
 
 void handleInterrupt21(int AX, int BX, int CX, int DX) {
@@ -58,11 +42,6 @@ void handleInterrupt21(int AX, int BX, int CX, int DX) {
             printString("Invalid Interrupt");
     }
 }
-
-//0xB8000 <- charater in top left (x = 0, y = 0)
-//0xB000 <- start segment
-//0x8000 + (80*y + x) * 2 <- y
-//karna ukurannya 80x25 berarti setiap huruf pindah 80
 
 void printString(char *string) {
     int i = 0;
@@ -99,9 +78,7 @@ void readString(char *string) {
             string[i++] = '\0';
             check = false;
             printString("\r\n");
-
         } else if (c == '\b') { //backspace
-
             if (i > 0){
               interrupt(0x10, 0x0E00 + '\b', 0, 0, 0);
               interrupt(0x10, 0x0E00 + ' ', 0, 0, 0);
