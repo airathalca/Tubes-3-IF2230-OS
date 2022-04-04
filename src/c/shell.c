@@ -208,7 +208,7 @@ void mv(byte parentIndex, char *source, char *target, int *ret_code) {
     write(&fileinfo, ret_code);
     return;
   }
-  
+
   while (i < 64 && !found) {
     if (node_fs_buffer.nodes[i].parent_node_index == parentIndex && strcmp(node_fs_buffer.nodes[i].name, source)) {
       found = true;
@@ -345,29 +345,6 @@ void printCWD(char* path_str, byte current_dir) {
   printString(path_str);
 }
 
-// byte readPath(char *path_str, struct node_filesystem node_fs_buffer, struct sector_filesystem sector_fs_buffer){
-//   char *node_name;
-//   int node_idx;
-//   int parent_idx = current_dir;
-
-//   for(node_idx = 0; node_idx < 64; node_idx++){
-//     if(node_fs_buffer.nodes[node_idx].parent_node_index == current_dir){
-//       break;
-//     }
-//   }
-
-//   path_str[0] = '/';
-//   //klo root
-//   if(parent_idx == FS_NODE_P_IDX_ROOT){
-    
-//     printString(path_str);
-//     return;
-//   }
-
-//   strcpy(node_name, node_fs_buffer.nodes[node_idx].name);
-
-// }
-
 byte read_absolute_path(char *path_str, enum fs_retcode *ret_code) {
   char temp_str[128];
   struct node_filesystem node_fs_buffer;
@@ -402,10 +379,16 @@ byte read_absolute_path(char *path_str, enum fs_retcode *ret_code) {
       }
 
       clear(temp_str, 128);
+      *path_str++;
+
+    } else if (*path_str != '/') {
+      temp_str[strlen(temp_str)] = *path_str;
+      *path_str++;
+
+    } else {
+      *path_str++;
     }
 
-    temp_str[strlen(temp_str)] = *path_str;
-    *path_str++;
   }
 
   return parentIdx;
