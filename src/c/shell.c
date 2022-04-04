@@ -32,7 +32,6 @@ void command_type(char *command, byte *current_dir, char*arg1, char* arg2, int *
   }
 
   else if (strcmp(command, "ls")) {
-
       ls(*current_dir, arg1, &ret_code);
   } 
 
@@ -50,10 +49,11 @@ void command_type(char *command, byte *current_dir, char*arg1, char* arg2, int *
   //aira
   else if (strcmp(command, "cp")) {
     cp(current_dir, "a", "b");
-  } 
+  }
   else {
       printString("Unknown command\r\n");
   }
+
   error_code(ret_code);
 }
 
@@ -236,7 +236,7 @@ void mv(byte parentIdx, char *source, char *target, int *ret_code) {
     write(&fileinfo, ret_code);
 
 	} else {
-		error_code(7);
+    *ret_code = FS_W_INVALID_FOLDER;
 		return;
 	}
 }
@@ -366,12 +366,12 @@ void printCWD(char* path_str, byte current_dir) {
 
 // }
 
-byte read_absolute_path(char *path_str) {
+byte read_absolute_path(char *path_str, enum fs_retcode *ret_code) {
   char temp_str[128];
   struct node_filesystem node_fs_buffer;
   int i;
   bool found;
-  byte parentIdx = 0xFF;
+  byte parentIdx = FS_NODE_P_IDX_ROOT;
 
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
 	readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
@@ -385,11 +385,18 @@ byte read_absolute_path(char *path_str) {
 
       while (i < 64 && !found) {
         if (node_fs_buffer.nodes[i].parent_node_index == parentIdx && strcmp(node_fs_buffer.nodes[i].name, path_str)) {
-          parentIdx = i;
           found = true;
         } else {
           i++;
         }
+      }
+
+      if (found) {
+        parentIdx = i;
+
+      } else {
+        *ret_code = FS_W_INVALID_FOLDER;
+		    return;
       }
 
       clear(temp_str, 128);
