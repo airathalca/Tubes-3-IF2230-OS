@@ -44,7 +44,7 @@ void command_type(char *command, byte *current_dir, char*arg1, char* arg2, int *
   } 
 
   else if (strcmp(command, "cat")) {
-    cat(current_dir, arg1, &ret_code);
+    cat(*current_dir, arg1, &ret_code);
   } 
   //aira
   else if (strcmp(command, "cp")) {
@@ -249,17 +249,27 @@ void mv(byte parentIdx, char *source, char *target, int *ret_code) {
 void cat(byte parentIndex, char *filename, int *ret_code) {
   //diketahui parentIndexnya trs tinggal searching node mana yang p nya sama 
   // berarti itu ada di folder tsb cek namanya sama apa ga
-  struct file_metadata fileInfo;
-
+  struct file_metadata *fileInfo;
+  byte text[512];
+  int i = 0;
   if(filename[0] == '\0'){
     *ret_code = FS_R_NODE_NOT_FOUND;
     return;
   }
+  fileInfo->parent_index = parentIndex;
+  if(strlen(filename) > 13){
+    *ret_code = FS_W_NOT_ENOUGH_STORAGE;
+    return;
+  }
+  strcpy(fileInfo->node_name, filename);
 
-  fileInfo.parent_index = parentIndex;
-  memcpy(&fileInfo.node_name, filename, strlen(filename));
-  read(&fileInfo, &ret_code);
-  printString(&fileInfo.buffer);
+  read(fileInfo, &ret_code);
+  // printString(&fileInfo.node_name);
+  // printString(&fileInfo.buffer);
+  // for(i = 0; i < strlen(&fileInfo.buffer); i++){
+  //   readSector(&text, fileInfo.buffer[i]);
+  //   printString(text);
+  // }
 }
 
 void mkdir(byte cur_dir_idx, char *arg1, int *ret_code){
@@ -440,3 +450,5 @@ void error_code(int err_code){
     break;
   }
 }
+
+void printFile()
