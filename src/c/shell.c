@@ -210,17 +210,13 @@ void mv(byte parentIndex, char *source, char *target, enum fs_retcode *ret_code)
     return;
   }
 
-    printString("2");
-
   // //isi fileinfo
   fileinfo->parent_index = parentIndex;
-  printHexa(fileinfo->parent_index);
    if(strlen(source) > 13){
     *ret_code = FS_W_NOT_ENOUGH_STORAGE;
     return;
   }
 
-  printString("3");
 
   strcpy(fileinfo->node_name, source);
   // printString("4");
@@ -230,12 +226,14 @@ void mv(byte parentIndex, char *source, char *target, enum fs_retcode *ret_code)
   // //skrg bisa mindahin ke folder atau root atau abs
   // //root
   if(target[0] == '/'){
-    printString("AA");
     fileinfo->parent_index = FS_NODE_P_IDX_ROOT;
     if(target[1] != '\0'){
       strcpy(fileinfo->node_name, target+1);
     }
-    printString(fileinfo->node_name);
+    if(strlen(target+1) > 13){
+      *ret_code = FS_W_NOT_ENOUGH_STORAGE;
+      return;
+    }
     node_fs_buffer.nodes[nodeFound].parent_node_index = fileinfo->parent_index;
   }
   else if(target[0] == '.' && target[1] == '.' && target[2] == '/'){
@@ -246,7 +244,10 @@ void mv(byte parentIndex, char *source, char *target, enum fs_retcode *ret_code)
     if(target[3] != '\0'){
       strcpy(fileinfo->node_name, target+3);
     }
-    printString(fileinfo->node_name);
+    if(strlen(target+3) > 13){
+      *ret_code = FS_W_NOT_ENOUGH_STORAGE;
+      return;
+    }
     fileinfo->parent_index = ROOT;
     node_fs_buffer.nodes[nodeFound].parent_node_index = ROOT;
   }else{
@@ -261,10 +262,15 @@ void mv(byte parentIndex, char *source, char *target, enum fs_retcode *ret_code)
       *ret_code = FS_R_NODE_NOT_FOUND;
       return;
     }
+    if(strlen(target) > 13){
+      *ret_code = FS_W_NOT_ENOUGH_STORAGE;
+      return;
+    }
     fileinfo->parent_index = ROOT;
     node_fs_buffer.nodes[nodeFound].parent_node_index = ROOT;
     strcpy(fileinfo->node_name, target);
   }
+  strcpy(node_fs_buffer.nodes[nodeFound].name, fileinfo->node_name);
   write(fileinfo, ret_code);
   writeSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   writeSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
