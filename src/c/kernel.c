@@ -97,6 +97,16 @@ void printInteger(int number){
   printString(rev);
 }
 
+void printHexa(char n)
+{
+	char number[3];
+	number[2] = 0;
+	number[0] = div(n, 16);
+	number[0] = number[0] >= 10 ? (number[0]-10) + 'A' : number[0] + '0';
+	number[1] = mod(n, 16);
+	number[1] = number[1] >= 10 ? (number[1]-10) + 'A' : number[1] + '0';
+	printString(number);
+}
 
 void readString(char *string) {
     bool check = true;
