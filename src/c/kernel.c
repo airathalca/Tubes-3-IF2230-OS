@@ -69,6 +69,7 @@ void printString(char *string) {
     char c = string[i];
     byte color = 0xD;
     while (c != '\0') {
+        
         interrupt(0x10, 0x0E00 + c, 0, 0, 0);
         i++;
         c = string[i];

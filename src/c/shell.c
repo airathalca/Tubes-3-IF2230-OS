@@ -450,5 +450,3 @@ void error_code(int err_code){
     break;
   }
 }
-
-void printFile()

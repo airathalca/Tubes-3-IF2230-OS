@@ -13,7 +13,6 @@ void ls(byte parentIndex, char *arg1, int *ret_code);
 void cat(byte parentIndex, char *arg1, int *ret_code);
 void cp(byte parentIndex, char *resourcePath, char *destinationPath);
 void printCWD(char *path_str, byte current_dir);
-void printFile(byte *buffer);
 void error_code(int error_code);
 void mkdir(byte parentIndex, char *arg1, int *ret_code);
 void mv(byte parentIdx, char *source, char *target);
