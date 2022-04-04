@@ -22,7 +22,7 @@ run:
 
 build-run: all run
 
-tc:
-	cd out && ./tc_gen A
+testcase:
+	cd out && ./tc_gen B
 
-tc-A: tc run
+tc: testcase run

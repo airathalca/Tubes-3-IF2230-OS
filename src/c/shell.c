@@ -348,10 +348,13 @@ void printCWD(char* path_str, byte current_dir) {
     nodeCount++;
   }
   
-  while(nodeCount > 0){
+  while(nodeCount > 0 && curlen < 128){
     nodeCount--;
     path_str[curlen++] = '/';
     strcpy(filename, node_fs_buffer.nodes[nodeIndex[nodeCount]].name);
+    if(curlen + strlen(filename) > 128){
+      break;
+    }
     for(i = 0; i < strlen(filename); i++){
       path_str[curlen++] = filename[i];
     }
