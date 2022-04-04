@@ -251,20 +251,20 @@ void cat(byte parentIndex, char *filename, int *ret_code) {
 
 void mkdir(byte cur_dir_idx, char *arg1, int *ret_code){
   //cek dulu apakah ada folder yang namanya sama
-  struct file_metadata fileinfo;
-  int i;
-  fileinfo.parent_index = cur_dir_idx;
-  fileinfo.filesize = 0;
-  if (strlen(arg1) > 13) {
+  struct file_metadata *fileinfo;
+  int i = 0;
+  if(arg1[0] == '\0'){
+    *ret_code = FS_R_NODE_NOT_FOUND;
+    return;
+  }
+  fileinfo->parent_index = cur_dir_idx;
+  if(strlen(arg1) > 13){
     *ret_code = FS_W_NOT_ENOUGH_STORAGE;
     return;
   }
-  for (i = 0; i < strlen(arg1);i++) {
-    fileinfo.node_name[i] = arg1[i];
-  }
-  fileinfo.node_name[i] = 0x0; 
+  strcpy(fileinfo->node_name, arg1);
   //udah ada isinya si fileinfonya;
-  write(&fileinfo, ret_code);
+  write(fileinfo, ret_code);
 }
 
 void cp(byte parentIndex, char *resourcePath, char *destinationPath, int *ret_code) {
