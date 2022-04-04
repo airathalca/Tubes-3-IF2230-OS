@@ -48,7 +48,6 @@ void command_type(char *command, byte *current_dir, char*arg1, char* arg2, enum 
   else if (strcmp(command, "cat")) {
     cat(*current_dir, arg1, &ret_code);
   } 
-  //aira
   else if (strcmp(command, "cp")) {
     cp(current_dir, "a", "b", &ret_code);
   }
@@ -141,11 +140,10 @@ void ls(byte parentIdx, char* arg1, enum fs_retcode *ret_code) {
   struct node_filesystem node_fs_buffer;
   int i = 0;
   byte parentFound = FS_NODE_P_IDX_ROOT;
-  //klo emg di root trs kosong print gaada aja
-  //klo emg mau nge ls tp gaada baru retcode
-  //cek dulu apakah arg1 nya ga nol?
+  
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
+
   if(arg1[0] == '\0'){
     while (i < 64) {
       if (strlen(node_fs_buffer.nodes[i].name) > 0 && node_fs_buffer.nodes[i].parent_node_index == parentIdx) {
@@ -230,29 +228,19 @@ void mv(byte parentIndex, char *source, char *target, enum fs_retcode *ret_code)
     strcpy(fileinfo->node_name, target + 1);
     printString(fileinfo->node_name);
   }
-  // else if(target[0] == '.' && target[1] == '.' && target[2] == '/'){
-  //   //cari juga nama yang sama
-  //   if(parentIndex != FS_NODE_P_IDX_ROOT){
-  //     ROOT = node_fs_buffer.nodes[parentIndex].parent_node_index;
-  //   }
-  //   fileinfo->parent_index = ROOT;
-  //   strcpy(fileinfo->node_name, target+3);
-  // }else{
-  //   // pindahin ke dalem folder cari index si foldernya
-  //   for(i = 0; i < 64; i++){
-  //     if(node_fs_buffer.nodes[i].parent_node_index == parentIndex && strcmp(node_fs_buffer.nodes[i].name, target)){
-  //       ROOT = i;
-  //       break;
-  //     }
-  //   }
-  //   if(i == 64){
-  //     *ret_code = FS_R_NODE_NOT_FOUND;
-  //     return;
-  //   }
-  //   fileinfo->parent_index = ROOT;
-  //   strcpy(fileinfo->node_name, target);
-  // }
   write(fileinfo, ret_code);
+}
+
+bool checkArgs(char *filename, int *ret_code) {
+  if(filename[0] == '\0'){
+      *ret_code = FS_R_NODE_NOT_FOUND;
+      return false;
+    }
+  if(strlen(filename) > 13){
+    *ret_code = FS_W_NOT_ENOUGH_STORAGE;
+    return false;
+  }
+  return true;
 }
 
 void cat(byte parentIndex, char *filename, enum fs_retcode *ret_code) {
@@ -260,15 +248,10 @@ void cat(byte parentIndex, char *filename, enum fs_retcode *ret_code) {
   // berarti itu ada di folder tsb cek namanya sama apa ga
   struct file_metadata *fileInfo;
   int i = 0;
-  if(filename[0] == '\0'){
-    *ret_code = FS_R_NODE_NOT_FOUND;
+  if (!checkArgs(filename,ret_code)) {
     return;
   }
   fileInfo->parent_index = parentIndex;
-  if(strlen(filename) > 13){
-    *ret_code = FS_W_NOT_ENOUGH_STORAGE;
-    return;
-  }
   strcpy(fileInfo->node_name, filename);
 
   read(fileInfo, ret_code);
@@ -281,16 +264,10 @@ void cat(byte parentIndex, char *filename, enum fs_retcode *ret_code) {
 void mkdir(byte cur_dir_idx, char *arg1, enum fs_retcode *ret_code){
   //cek dulu apakah ada folder yang namanya sama
   struct file_metadata *fileinfo;
-  int i = 0;
-  if(arg1[0] == '\0'){
-    *ret_code = FS_R_NODE_NOT_FOUND;
+  if (!checkArgs(arg1,ret_code)) {
     return;
   }
   fileinfo->parent_index = cur_dir_idx;
-  if(strlen(arg1) > 13){
-    *ret_code = FS_W_NOT_ENOUGH_STORAGE;
-    return;
-  }
   strcpy(fileinfo->node_name, arg1);
   //udah ada isinya si fileinfonya;
   write(fileinfo, ret_code);
@@ -302,8 +279,18 @@ void cp(byte parentIdx, char *resourcePath, char *destinationPath, enum fs_retco
   int i = 0;
   int foundEntryNode;
   bool found = false;
+
+  clear(fileInfo->buffer, 8192);
+  if (!checkArgs(resourcePath,ret_code)) {
+    return;
+  }
+  fileInfo->parent_index = parentIdx;
+  strcpy(fileInfo->node_name, resourcePath);
+  read(fileInfo, ret_code);
+
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
+
   while (i < 64 && !found) {
     if (strcmp(node_fs_buffer.nodes[i].name, destinationPath) && parentIdx == node_fs_buffer.nodes[i].parent_node_index){
       if (node_fs_buffer.nodes[i].sector_entry_index == FS_NODE_S_IDX_FOLDER) {
@@ -318,23 +305,9 @@ void cp(byte parentIdx, char *resourcePath, char *destinationPath, enum fs_retco
     *ret_code = FS_W_INVALID_FOLDER;
     return;
   }
-
-  clear(fileInfo->buffer, 8192);
-  if (resourcePath[0] == '\0'){
-    *ret_code = FS_R_NODE_NOT_FOUND;
-    return;
-  }
-  fileInfo->parent_index = parentIdx;
-  if (strlen(resourcePath) > 13){
-    *ret_code = FS_W_NOT_ENOUGH_STORAGE;
-    return;
-  }
-  strcpy(fileInfo->node_name, resourcePath);
-  read(fileInfo, ret_code);
   if (*ret_code != FS_SUCCESS && *ret_code != FS_R_TYPE_IS_FOLDER){
     return;
   }
-
   fileInfo->parent_index = foundEntryNode;
   strcpy(fileInfo->node_name, resourcePath);
   write(fileInfo, ret_code);
