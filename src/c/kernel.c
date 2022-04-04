@@ -69,7 +69,7 @@ void printString(char *string) {
     char c = string[i];
     byte color = 0xD;
     while (c != '\0') {
-        
+        if(c == '\n')interrupt(0x10, 0x0E00 + '\r', 0, 0, 0);
         interrupt(0x10, 0x0E00 + c, 0, 0, 0);
         i++;
         c = string[i];
@@ -233,7 +233,6 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
   //    Jika tidak ditemukan kecocokan, tuliskan retcode FS_R_NODE_NOT_FOUND
   //    dan keluar. 
   while (i < 64 && !found) {
-    printString("\r\n");
     if (strcmp(node_fs_buffer.nodes[i].name, metadata->node_name) && metadata->parent_index == node_fs_buffer.nodes[i].parent_node_index){
       foundEntryNode = i;
       found = true;
@@ -241,8 +240,6 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
       i++;
     }
   }
-
-  printString("2");
 
   if (!found){
     *return_code = FS_R_TYPE_IS_FOLDER;
@@ -253,7 +250,6 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
   //    Jika tipe node adalah file, lakukan proses pembacaan.
   //    Jika tipe node adalah folder, tuliskan retcode FS_R_TYPE_IS_FOLDER
   //    dan keluar.
-  printString("3");
   if (node_fs_buffer.nodes[i].sector_entry_index == FS_NODE_S_IDX_FOLDER) {
     *return_code = FS_R_TYPE_IS_FOLDER;
     return;

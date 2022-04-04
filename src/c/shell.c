@@ -231,7 +231,6 @@ void cat(byte parentIndex, char *filename, int *ret_code) {
   //diketahui parentIndexnya trs tinggal searching node mana yang p nya sama 
   // berarti itu ada di folder tsb cek namanya sama apa ga
   struct file_metadata *fileInfo;
-  byte text[512];
   int i = 0;
   if(filename[0] == '\0'){
     *ret_code = FS_R_NODE_NOT_FOUND;
@@ -244,13 +243,10 @@ void cat(byte parentIndex, char *filename, int *ret_code) {
   }
   strcpy(fileInfo->node_name, filename);
 
-  read(fileInfo, &ret_code);
-  // printString(&fileInfo.node_name);
-  // printString(&fileInfo.buffer);
-  // for(i = 0; i < strlen(&fileInfo.buffer); i++){
-  //   readSector(&text, fileInfo.buffer[i]);
-  //   printString(text);
-  // }
+  read(fileInfo, ret_code);
+  if(*ret_code == 0){
+    printString("\r\n");
+  }
 }
 
 void mkdir(byte cur_dir_idx, char *arg1, int *ret_code){
