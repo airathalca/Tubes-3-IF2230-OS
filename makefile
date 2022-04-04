@@ -25,4 +25,19 @@ build-run: all run
 tc:
 	cd out && ./tc_gen A
 
+tc-2:
+	cd out && ./tc_gen B
+
+tc-3:
+	cd out && ./tc_gen C
+
+tc-4:
+	cd out && ./tc_gen D
+
 tc-A: tc run
+
+tc-B: tc-2 run
+
+tc-C: tc-3 run
+
+tc-D: tc-4 run
