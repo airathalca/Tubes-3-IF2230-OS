@@ -293,6 +293,7 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
   struct sector_entry buffer;
   bool found = false;
   byte parent;
+  bool isFile = false;
   unsigned int sizenow;
 
   readSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER);
@@ -308,12 +309,15 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
     if (strcmp(node_fs_buffer.nodes[i].name, metadata->node_name) && 
     metadata->parent_index == node_fs_buffer.nodes[i].parent_node_index){
       found = true;
+      if(node_fs_buffer.nodes[i].sector_entry_index == FS_NODE_S_IDX_FOLDER) isFile = false;
+      else isFile = true;
       break;
     }
     i++;
   }
   if (found) {
-    *return_code = FS_W_FILE_ALREADY_EXIST;
+    if(isFile) *return_code = FS_W_FILE_ALREADY_EXIST;
+    else *return_code = FS_W_FOLDER_ALREADY_EXISTS;
     return;
   }
 

@@ -36,7 +36,8 @@ void command_type(char *command, byte *current_dir, char*arg1, char* arg2, int *
   } 
 
   else if (strcmp(command, "mv")) {
-    mv(current_dir, "test", "test2", &ret_code);
+    printString(command);
+    mv(current_dir, arg1, arg2, &ret_code);
   }
 
   else if (strcmp(command, "mkdir")) {
@@ -182,48 +183,79 @@ void ls(byte parentIdx, char* arg1, int *ret_code) {
 
 void mv(byte parentIndex, char *source, char *target, int *ret_code) {
 	struct node_filesystem node_fs_buffer;
-  struct file_metadata fileinfo;
+  struct file_metadata *fileinfo;
 	int i = 0;
-	bool found;
 	byte addressSrc, addressTarget;
-
-  read(&fileinfo, ret_code);
-  if (*ret_code != 0){
-    return;
-  }
+  byte ROOT = FS_NODE_P_IDX_ROOT;
+  byte nodeFound = 0;
+  bool alreadySame = false;
+  bool isFile = false;
+  bool found = false;
 
 	readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
 	readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
 
-  // kalo gaada dir nya
-  if(source[0] == '\0'){
+
+
+  if(source[0] == '\0' || target[0] == '\0'){
+    //masukin error bahwa mv harus make argunmen
     *ret_code = FS_R_NODE_NOT_FOUND;
     return;
   }
 
-  //masalah absolute pathing
-  if (source[0] == '/'){
-    fileinfo.parent_index = read_absolute_path(source, ret_code);
-    write(&fileinfo, ret_code);
-    return;
-  }
-
-  while (i < 64 && !found) {
-    if (node_fs_buffer.nodes[i].parent_node_index == parentIndex && strcmp(node_fs_buffer.nodes[i].name, source)) {
+  // cari dulu node yang ounya nama sama kaya siini
+  for(i = 0; i < 64; i++){
+    if(node_fs_buffer.nodes[i].parent_node_index == parentIndex && strcmp(node_fs_buffer.nodes[i].name, source)){
+      nodeFound = i;
       found = true;
-    } else {
-      i++;
+      break;
     }
   }
 
-  if (found) {
-    fileinfo.parent_index = addressTarget;
-    write(&fileinfo, ret_code);
-
-  } else {
-    *ret_code = FS_W_INVALID_FOLDER;
+  if(!found){
+    *ret_code = FS_R_NODE_NOT_FOUND;
     return;
   }
+
+  // //isi fileinfo
+  fileinfo->parent_index = parentIndex;
+   if(strlen(source) > 13){
+    *ret_code = FS_W_NOT_ENOUGH_STORAGE;
+    return;
+  }
+  strcpy(fileinfo->node_name, source);
+  read(fileinfo, ret_code);
+  // //folder udah kesisi tinggal cek ada yang namanya sama ga di root
+  // //skrg bisa mindahin ke folder atau root atau abs
+  // //root
+  if(target[0] = '/'){
+    fileinfo->parent_index = FS_NODE_P_IDX_ROOT;
+    strcpy(fileinfo->node_name, target+1);
+    printString(fileinfo->node_name);
+  }
+  // else if(target[0] == '.' && target[1] == '.' && target[2] == '/'){
+  //   //cari juga nama yang sama
+  //   if(parentIndex != FS_NODE_P_IDX_ROOT){
+  //     ROOT = node_fs_buffer.nodes[parentIndex].parent_node_index;
+  //   }
+  //   fileinfo->parent_index = ROOT;
+  //   strcpy(fileinfo->node_name, target+3);
+  // }else{
+  //   // pindahin ke dalem folder cari index si foldernya
+  //   for(i = 0; i < 64; i++){
+  //     if(node_fs_buffer.nodes[i].parent_node_index == parentIndex && strcmp(node_fs_buffer.nodes[i].name, target)){
+  //       ROOT = i;
+  //       break;
+  //     }
+  //   }
+  //   if(i == 64){
+  //     *ret_code = FS_R_NODE_NOT_FOUND;
+  //     return;
+  //   }
+  //   fileinfo->parent_index = ROOT;
+  //   strcpy(fileinfo->node_name, target);
+  // }
+  write(fileinfo, ret_code);
 }
 
 void cat(byte parentIndex, char *filename, int *ret_code) {
@@ -397,42 +429,12 @@ byte read_absolute_path(char *path_str, enum fs_retcode *ret_code) {
       return parentIdx;
     }
     clear(temp_str, 128);
-    //dapet temp str
-
-  //   if (path_str[i] == '/' && temp_str != '\0') {
-  //     found = false;
-
-  //     while (j < 64 && !found) {
-  //       if (node_fs_buffer.nodes[j].parent_node_index == parentIdx && strcmp(node_fs_buffer.nodes[j].name, path_str)) {
-  //         found = true;
-  //       } else {
-  //         i++;
-  //       }
-  //     }
-
-  //     if (found) {
-  //       parentIdx = i;
-
-  //     } else {
-  //       *ret_code = FS_W_INVALID_FOLDER;
-	// 	    return;
-  //     }
-
-  //     clear(temp_str, 128);
-  //     *path_str++;
-
-  //   } else if (*path_str != '/') {
-  //     temp_str[strlen(temp_str)] = *path_str;
-  //     *path_str++;
-
-  //   } else {
-  //     *path_str++;
-  //   }
-
-  // }
-
-  // return parentIdx;
     i++;
+  }
+  if(node_fs_buffer.nodes[parentIdx].sector_entry_index != FS_NODE_P_IDX_ROOT){
+    //harusnya file typenya file jdi gabisa ini tinggal ganti retcode
+    *ret_code = FS_R_TYPE_IS_FOLDER;
+    return FS_NODE_P_IDX_ROOT;
   }
   return parentIdx;
 }
