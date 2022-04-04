@@ -133,6 +133,49 @@ void fillKernelMap(){
   writeSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER); 
 }
 
+void printInteger(int n) {
+	int tmp = n;
+    int i;
+    int length = 1;
+	char number[5];
+	char isNegative = 0;
+
+    // If n is 0...
+	if(n == 0) {
+        printString("0");
+        return;
+    }
+    
+    // If is negative...
+    if(tmp<0)
+    {
+    	isNegative = 1;
+    	tmp = -tmp;
+    }
+
+    // Check length of int
+    while(tmp>10)
+    {
+        tmp = div(tmp, 10);
+        ++length;
+    }
+
+    tmp = n;
+	if (isNegative) {
+		tmp = -tmp;
+	}
+
+	for(i=length-1;i>=0;i--)
+	{
+		number[i] = mod(tmp,10) + '0';
+		tmp = div(tmp, 10);
+	}
+    number[length] = 0;
+
+    if(isNegative) printString("-");
+    printString(number);
+}
+
 void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
   // Tambahkan tipe data yang dibutuhkan
   struct node_filesystem   node_fs_buffer;
@@ -198,7 +241,7 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
   }
   // 7. Tulis retcode FS_SUCCESS dan ganti filesize 
   // pada akhir proses pembacaan.
-  metadata->filesize = j * 512;
+  metadata->filesize =  j * 512;
   *return_code = FS_SUCCESS;
 }
 
@@ -344,38 +387,35 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
   // 8. Lakukan penulisan seluruh filesystem (map, node, sector) ke storage
   //    menggunakan writeSector() pada sektor yang sesuai
   // 9. Kembalikan retcode FS_SUCCESS
-  strcpy(node_fs_buffer.nodes[emptyNode].name, metadata->node_name);
-  node_fs_buffer.nodes[emptyNode].parent_node_index = metadata->parent_index;
-
   if (metadata->filesize == 0) {
     node_fs_buffer.nodes[emptyNode].sector_entry_index = FS_NODE_S_IDX_FOLDER;
-    writeSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
-    writeSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
-    *return_code = FS_SUCCESS;
-    return;
   } 
   else {
     i = 0;
     //i: sector (i), k: iterator entry kosong (j), l : iterator biasa
-    node_fs_buffer.nodes[emptyNode].sector_entry_index = emptySector;
     for (j = 0; j < 256; j++) {
       if (map_fs_buffer.is_filled[j]) {
         continue;
       }
       map_fs_buffer.is_filled[j] = true;
       buffer.sector_numbers[i] = j;
-      writeSector(metadata->buffer + i * 512, j);
       i++;
       if (metadata->filesize <= 512 * i) {
         break;
       }
     }
-    memcpy(&sector_fs_buffer.sector_list[i], &buffer, i);
+    for (j = 0; j < i; j++) {
+      writeSector(metadata->buffer + j * 512, buffer.sector_numbers[j]);
+    }
+    memcpy(&sector_fs_buffer.sector_list[emptySector], &buffer, i);
+    node_fs_buffer.nodes[emptyNode].sector_entry_index = emptySector;
+    writeSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER);
+    writeSector(&sector_fs_buffer.sector_list, FS_SECTOR_SECTOR_NUMBER);
   }
-  writeSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER);
+  strcpy(node_fs_buffer.nodes[emptyNode].name, metadata->node_name);
+  node_fs_buffer.nodes[emptyNode].parent_node_index = metadata->parent_index;
   writeSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   writeSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
-  writeSector(&sector_fs_buffer.sector_list, FS_SECTOR_SECTOR_NUMBER);
   *return_code = FS_SUCCESS;
   return;
 }

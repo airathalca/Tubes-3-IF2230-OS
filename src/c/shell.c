@@ -318,45 +318,79 @@ void mkdir(byte cur_dir_idx, char *arg1, enum fs_retcode *ret_code){
   write(fileinfo, ret_code);
 }
 
-void cp(byte parentIdx, char *resourcePath, char *destinationPath, enum fs_retcode *ret_code){
-  struct file_metadata *fileInfo;
-  struct node_filesystem  node_fs_buffer;
-  int i = 0;
-  int foundEntryNode;
-  bool found = false;
+// void cp(byte parentIdx, char *resourcePath, char *destinationPath, enum fs_retcode *ret_code){
+//   struct file_metadata *fileInfo;
+//   struct node_filesystem node_fs_buffer;
+//   int i = 0;
+//   int foundEntryNode;
+//   bool found = false;
 
+//   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
+//   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
+
+//   while (i < 64 && !found) {
+//     if (strcmp(node_fs_buffer.nodes[i].name, destinationPath) && parentIdx == node_fs_buffer.nodes[i].parent_node_index){
+//       if (node_fs_buffer.nodes[i].sector_entry_index == FS_NODE_S_IDX_FOLDER) {
+//         foundEntryNode = i;
+//         found = true;
+//       }
+//     } else {
+//       i++;
+//     }
+//   }
+//   if (!found) {
+//     *ret_code = FS_W_INVALID_FOLDER;
+//     return;
+//   }
+//   clear(fileInfo->buffer, 8192);
+//   if (!checkArgs(resourcePath,ret_code)) {
+//     return;
+//   }
+//   fileInfo->parent_index = parentIdx;
+//   strcpy(fileInfo->node_name, resourcePath);
+//   read(fileInfo, ret_code);
+//   // TODO : readnya gatau kenapa rusak, masuk ke node name sama size jadi 0
+//   if (*ret_code != FS_SUCCESS && *ret_code != FS_R_TYPE_IS_FOLDER){
+//     return;
+//   }
+//   fileInfo->parent_index = foundEntryNode;
+//   strcpy(fileInfo->node_name, resourcePath);
+//   write(fileInfo, ret_code);
+//   return;
+// }
+
+void cp(byte parentIdx, char *resourcePath, char *destinationPath, enum fs_retcode *ret_code){
+  char buffer[8192];
+  struct node_filesystem node_fs_buffer;
+  struct file_metadata *fileInfo;
+  int i;
+  clear(buffer, 8192);
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
-
-  while (i < 64 && !found) {
+  memcpy(fileInfo->buffer, buffer, 8192);
+  strcpy(fileInfo->node_name, resourcePath);
+  fileInfo->parent_index = parentIdx;
+  read(fileInfo, ret_code);
+  if (*ret_code != 0) {
+    return;
+  }
+  i = 0;
+  while (i < 64) {
     if (strcmp(node_fs_buffer.nodes[i].name, destinationPath) && parentIdx == node_fs_buffer.nodes[i].parent_node_index){
       if (node_fs_buffer.nodes[i].sector_entry_index == FS_NODE_S_IDX_FOLDER) {
-        foundEntryNode = i;
-        found = true;
+        break;
       }
-    } else {
+    } 
+    else {
       i++;
     }
   }
-  if (!found) {
+  if (i == 64) {
     *ret_code = FS_W_INVALID_FOLDER;
     return;
   }
-  clear(fileInfo->buffer, 8192);
-  if (!checkArgs(resourcePath,ret_code)) {
-    return;
-  }
-  fileInfo->parent_index = parentIdx;
-  strcpy(fileInfo->node_name, resourcePath);
-  read(fileInfo, ret_code);
-  // TODO : readnya gatau kenapa rusak, masuk ke node name sama size jadi 0
-  if (*ret_code != FS_SUCCESS && *ret_code != FS_R_TYPE_IS_FOLDER){
-    return;
-  }
-  fileInfo->parent_index = foundEntryNode;
-  strcpy(fileInfo->node_name, resourcePath);
+  fileInfo->parent_index = i;
   write(fileInfo, ret_code);
-  return;
 }
 
 void printCWD(char* path_str, byte current_dir) {
