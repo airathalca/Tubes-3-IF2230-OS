@@ -326,6 +326,8 @@ void printCWD(char* path_str, byte current_dir) {
   // misal skrg ga di root tp di /a/b/c
   //loop sampe parentnya oxFF
   parent = node_fs_buffer.nodes[current_dir].parent_node_index;
+  printInteger(current_dir);
+  printInteger(parent);
   while(parent != FS_NODE_P_IDX_ROOT){
     nodeIndex[nodeCount++] = parent;
     parent = node_fs_buffer.nodes[parent].parent_node_index;

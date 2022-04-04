@@ -21,3 +21,8 @@ run:
 	bochs -f src/config/if2230.config
 
 build-run: all run
+
+tc:
+	cd out && ./tc_gen A
+
+tc-A: tc run
