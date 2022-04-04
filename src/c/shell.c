@@ -48,7 +48,7 @@ void command_type(char *command, byte *current_dir, char*arg1, char* arg2, enum 
     cat(*current_dir, arg1, &ret_code);
   } 
   else if (strcmp(command, "cp")) {
-    cp(current_dir, "a", "b", &ret_code);
+    cp(*current_dir, arg1, arg2, &ret_code);
   }
   else {
       printString("Unknown command\r\n");
@@ -139,7 +139,7 @@ void ls(byte parentIdx, char* arg1, enum fs_retcode *ret_code) {
   struct node_filesystem node_fs_buffer;
   int i = 0;
   byte parentFound = FS_NODE_P_IDX_ROOT;
-  
+
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
 
@@ -325,14 +325,6 @@ void cp(byte parentIdx, char *resourcePath, char *destinationPath, enum fs_retco
   int foundEntryNode;
   bool found = false;
 
-  clear(fileInfo->buffer, 8192);
-  if (!checkArgs(resourcePath,ret_code)) {
-    return;
-  }
-  fileInfo->parent_index = parentIdx;
-  strcpy(fileInfo->node_name, resourcePath);
-  read(fileInfo, ret_code);
-
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
 
@@ -350,6 +342,14 @@ void cp(byte parentIdx, char *resourcePath, char *destinationPath, enum fs_retco
     *ret_code = FS_W_INVALID_FOLDER;
     return;
   }
+  clear(fileInfo->buffer, 8192);
+  if (!checkArgs(resourcePath,ret_code)) {
+    return;
+  }
+  fileInfo->parent_index = parentIdx;
+  strcpy(fileInfo->node_name, resourcePath);
+  read(fileInfo, ret_code);
+  // TODO : readnya gatau kenapa rusak, masuk ke node name sama size jadi 0
   if (*ret_code != FS_SUCCESS && *ret_code != FS_R_TYPE_IS_FOLDER){
     return;
   }
