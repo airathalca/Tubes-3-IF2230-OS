@@ -13,6 +13,8 @@ void fillKernelMap();
 // TODO : Implementasikan
 void printString(char *string);
 void printInteger(int number);
+void printHexa(char n);
+
 void readString(char *string);
 void clearScreen();
 void welcome();
