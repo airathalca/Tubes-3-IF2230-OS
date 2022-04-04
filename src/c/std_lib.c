@@ -15,6 +15,7 @@ int mod (int a, int n) {
 }
 
 void memcpy(byte *dest, byte *src, unsigned int n) {
+  clear(dest, strlen(dest));
   while (n--) {
     *dest++ = *src++;
   }
@@ -43,6 +44,7 @@ bool strcmp(char *s1, char *s2) {
 }
 
 void strcpy(char *dst, char *src) {
+  clear(dst, strlen(dst));
   while ((*dst++ = *src++) != '\0');
 }
 

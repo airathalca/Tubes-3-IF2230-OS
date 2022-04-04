@@ -262,7 +262,7 @@ void mkdir(byte cur_dir_idx, char *arg1, int *ret_code){
   struct file_metadata fileinfo;
   fileinfo.parent_index = cur_dir_idx;
   fileinfo.filesize = 0;
-  memcpy(&fileinfo.node_name, arg1, strlen(arg1));
+  strcpy(&fileinfo.node_name, arg1);
   //udah ada isinya si fileinfonya;
   write(&fileinfo, ret_code);
 }
