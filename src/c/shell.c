@@ -144,6 +144,7 @@ void ls(byte parentIdx, char* arg1, int *ret_code) {
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
   if(arg1[0] == '\0'){
     while (i < 64) {
+      printInteger(parentIdx);
       if (node_fs_buffer.nodes[i].parent_node_index == parentIdx) {
         printString(node_fs_buffer.nodes[i].name);
         printString("\r\n");

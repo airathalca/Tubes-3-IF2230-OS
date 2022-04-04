@@ -75,6 +75,29 @@ void printString(char *string) {
     }
 }
 
+void printInteger(int number){
+  int i = 0;
+  int j;
+  int k;
+  //0xFF 256
+  char str[16];
+  char rev[16];
+  while(number >= 0 && i < 10){
+    str[i] = mod(number, 10) + '0';
+    i++;
+    number = div(number, 10);
+  }
+  k = 0;
+  for(j = i - 1; j >= 0; j--){
+    rev[j] = str[k];
+    k++;
+  }
+  rev[i] = '\0';
+  printString("\r\n");
+  printString(rev);
+}
+
+
 void readString(char *string) {
     bool check = true;
     char c = '\0';

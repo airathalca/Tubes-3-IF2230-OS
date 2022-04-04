@@ -12,6 +12,7 @@ void fillKernelMap();
 
 // TODO : Implementasikan
 void printString(char *string);
+void printInteger(int number);
 void readString(char *string);
 void clearScreen();
 void welcome();
