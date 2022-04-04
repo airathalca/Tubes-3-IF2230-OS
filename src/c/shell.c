@@ -245,6 +245,7 @@ void cat(byte parentIndex, char *filename, int *ret_code) {
 
   read(fileInfo, ret_code);
   if(*ret_code == 0){
+    printString(fileInfo->buffer);
     printString("\r\n");
   }
 }
