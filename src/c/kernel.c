@@ -273,7 +273,6 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
       break;
     }
   }
-  printString(metadata->buffer);
   // 7. Tulis retcode FS_SUCCESS dan ganti filesize 
   // pada akhir proses pembacaan.
   metadata->filesize = j * 512;
@@ -430,7 +429,6 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
     *return_code = FS_SUCCESS;
     return;
   } 
-
   else {
     //i: sector (i), k: iterator entry kosong (j), l : iterator biasa
     node_fs_buffer.nodes[emptyNode].sector_entry_index = emptySector;
@@ -448,11 +446,12 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
         break;
       }
     }
-
     memcpy(&sector_fs_buffer.sector_list[i], &buffer, k);
   }
   writeSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER);
-  writeSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER);
-  writeSector(&node_fs_buffer.nodes[32], FS_NODE_SECTOR_NUMBER + 1);
-  writeSector(&sector_fs_buffer, FS_SECTOR_SECTOR_NUMBER);
+  writeSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
+  writeSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
+  writeSector(&sector_fs_buffer.sector_list, FS_SECTOR_SECTOR_NUMBER);
+  *return_code = FS_SUCCESS;
+  return;
 }
