@@ -127,11 +127,16 @@ void cd(byte *parentIndex, char *dir, enum fs_retcode *ret_code) {
   //if ada dir nya
   for(i = 0; i < 64; i++) {
     if(strcmp(node_fs_buffer.nodes[i].name, dir) && node_fs_buffer.nodes[i].parent_node_index == cur_idx){
-      *parentIndex = i;
-      break;
+      if (node_fs_buffer.nodes[i].sector_entry_index == FS_NODE_S_IDX_FOLDER) {
+        *parentIndex = i;
+        break;
+      }
     }
   }
-
+  if (i == 64) {
+    *ret_code = FS_W_INVALID_FOLDER;
+    return;
+  }
   *ret_code = FS_SUCCESS;
   return;
 }
