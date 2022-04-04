@@ -111,7 +111,6 @@ void cd(byte *parentIndex, char *dir, int *ret_code) {
   //masalah absolute pathing
   if(dir[0] == '/'){
     *parentIndex = read_absolute_path(dir, ret_code);
-    *ret_code = FS_W_NOT_ENOUGH_STORAGE;
     return;
   }
 
@@ -366,49 +365,75 @@ void printCWD(char* path_str, byte current_dir) {
 byte read_absolute_path(char *path_str, enum fs_retcode *ret_code) {
   char temp_str[128];
   struct node_filesystem node_fs_buffer;
-  int i;
-  bool found;
+  int i = 0;
+  int j = 0;
+  int k;
+  bool found = false;
   byte parentIdx = FS_NODE_P_IDX_ROOT;
 
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
 	readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
 
+
   clear(temp_str, 128);
-
-  while (*path_str != '\0') {
-    if (*path_str == '/' && temp_str != '\0') {
-      i = 0;
-      found = false;
-
-      while (i < 64 && !found) {
-        if (node_fs_buffer.nodes[i].parent_node_index == parentIdx && strcmp(node_fs_buffer.nodes[i].name, path_str)) {
-          found = true;
-        } else {
-          i++;
-        }
+  while (path_str[i] != '\0') {
+    if(path_str[i] == '/'){i++; continue;}
+    j = 0;
+    while(path_str[i] != '\0' && path_str[i] != '/'){
+      temp_str[j] = path_str[i];
+      i++;
+      j++;
+    }
+    for(k = 0; k < 64; k++){
+      if(strcmp(node_fs_buffer.nodes[k].name, temp_str) && node_fs_buffer.nodes[k].parent_node_index == parentIdx){
+        parentIdx = k;
+        found = true;
+        break;
       }
-
-      if (found) {
-        parentIdx = i;
-
-      } else {
-        *ret_code = FS_W_INVALID_FOLDER;
-		    return;
-      }
-
-      clear(temp_str, 128);
-      *path_str++;
-
-    } else if (*path_str != '/') {
-      temp_str[strlen(temp_str)] = *path_str;
-      *path_str++;
-
-    } else {
-      *path_str++;
     }
 
-  }
+    if(!found){
+      *ret_code = FS_R_NODE_NOT_FOUND;
+      return parentIdx;
+    }
+    clear(temp_str, 128);
+    //dapet temp str
 
+  //   if (path_str[i] == '/' && temp_str != '\0') {
+  //     found = false;
+
+  //     while (j < 64 && !found) {
+  //       if (node_fs_buffer.nodes[j].parent_node_index == parentIdx && strcmp(node_fs_buffer.nodes[j].name, path_str)) {
+  //         found = true;
+  //       } else {
+  //         i++;
+  //       }
+  //     }
+
+  //     if (found) {
+  //       parentIdx = i;
+
+  //     } else {
+  //       *ret_code = FS_W_INVALID_FOLDER;
+	// 	    return;
+  //     }
+
+  //     clear(temp_str, 128);
+  //     *path_str++;
+
+  //   } else if (*path_str != '/') {
+  //     temp_str[strlen(temp_str)] = *path_str;
+  //     *path_str++;
+
+  //   } else {
+  //     *path_str++;
+  //   }
+
+  // }
+
+  // return parentIdx;
+    i++;
+  }
   return parentIdx;
 }
 
