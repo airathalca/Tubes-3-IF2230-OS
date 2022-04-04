@@ -251,6 +251,7 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
   //    Jika tipe node adalah folder, tuliskan retcode FS_R_TYPE_IS_FOLDER
   //    dan keluar.
   if (node_fs_buffer.nodes[i].sector_entry_index == FS_NODE_S_IDX_FOLDER) {
+    metadata->filesize = 0;
     *return_code = FS_R_TYPE_IS_FOLDER;
     return;
   }
@@ -265,10 +266,10 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
   // 5. Jika byte valid, lakukan readSector() 
   //    dan masukkan kedalam buffer yang disediakan pada metadata
   // 6. Lompat ke iterasi selanjutnya hingga iterasi selesai
-  clear(metadata->buffer, 8192);
+  //clear(metadata->buffer, 8192);
   for(j = 0; j < 16; j++){
     if(sector_entry_buffer.sector_numbers[j] != '\0'){
-      readSector(metadata->buffer + j * 512, sector_entry_buffer.sector_numbers[j]);
+      readSector(metadata->buffer + (j*512), sector_entry_buffer.sector_numbers[j]);
     } else {
       break;
     }

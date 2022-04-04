@@ -299,50 +299,48 @@ void mkdir(byte cur_dir_idx, char *arg1, int *ret_code){
   write(fileinfo, ret_code);
 }
 
-void cp(byte parentIndex, char *resourcePath, char *destinationPath, int *ret_code) {
-  struct file_metadata fileInfo;
-  struct node_filesystem node_fs_buffer;
+void cp(byte parentIdx, char *resourcePath, char *destinationPath, int *ret_code){
+  struct file_metadata *fileInfo;
+  struct node_filesystem  node_fs_buffer;
   int i = 0;
-
-  fileInfo.parent_index = parentIndex;
-  strcpy(fileInfo.node_name, resourcePath);
-  read(&fileInfo, ret_code);
-
-  if (*ret_code != 0){
-    return;
-  }
-
+  int foundEntryNode;
+  bool found = false;
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
-
-  // kalo gaada dir nya
-  if (resourcePath[0] == '\0'){
-    ret_code = FS_R_NODE_NOT_FOUND;
-    return;
-  }
-
-  //masalah absolute pathing
-  if (resourcePath[0] == '/'){
-    fileInfo.parent_index = read_absolute_path(resourcePath, ret_code);
-    write(&fileInfo, ret_code);
-    return;
-  }
-
-  while (i < 64) {
-    if (node_fs_buffer.nodes[i].parent_node_index == parentIndex &&
-    strcmp(node_fs_buffer.nodes[i].name, destinationPath) &&
-    node_fs_buffer.nodes[i].sector_entry_index == FS_NODE_S_IDX_FOLDER) {
-      fileInfo.parent_index = i;
-      break;
+  while (i < 64 && !found) {
+    if (strcmp(node_fs_buffer.nodes[i].name, destinationPath) && parentIdx == node_fs_buffer.nodes[i].parent_node_index){
+      if (node_fs_buffer.nodes[i].sector_entry_index == FS_NODE_S_IDX_FOLDER) {
+        foundEntryNode = i;
+        found = true;
+      }
+    } else {
+      i++;
     }
-    i++;
   }
-
-  if (i == 64) {
-    printString("Folder Tidak Ditemukan.\n");
+  if (!found) {
+    *ret_code = FS_W_INVALID_FOLDER;
     return;
   }
-  write(&fileInfo, ret_code);
+
+  clear(fileInfo->buffer,8192);
+  if(resourcePath[0] == '\0'){
+    *ret_code = FS_R_NODE_NOT_FOUND;
+    return;
+  }
+  fileInfo->parent_index = parentIdx;
+  if(strlen(resourcePath) > 13){
+    *ret_code = FS_W_NOT_ENOUGH_STORAGE;
+    return;
+  }
+  strcpy(fileInfo->node_name, resourcePath);
+  read(fileInfo, ret_code);
+  if (*ret_code != FS_SUCCESS && *ret_code != FS_R_TYPE_IS_FOLDER){
+    return;
+  }
+  fileInfo->parent_index = foundEntryNode;
+  strcpy(fileInfo->node_name, resourcePath);
+  write(fileInfo, ret_code);
+  return;
 }
 
 void printCWD(char* path_str, byte current_dir) {
