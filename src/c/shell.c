@@ -115,13 +115,14 @@ void cd(byte *parentIndex, char *dir, int *ret_code) {
   //masalah absolute pathing
   if(dir[0] == '/'){
     //placeholder
-    *ret_code = FS_MAP_SECTOR_NUMBER;
+    *ret_code = FS_W_NOT_ENOUGH_STORAGE;
     return;
   }
 
   //balik ke parent
   if(dir[0] == '.' && dir[1] == '.'){
     if(cur_idx == FS_NODE_P_IDX_ROOT){
+      *ret_code = FS_W_INVALID_FOLDER;
       return;
     }
     *parentIndex = node_fs_buffer.nodes[cur_idx].parent_node_index;
@@ -307,6 +308,7 @@ void printCWD(char* path_str, byte current_dir) {
   int curlen = 0;
   byte nodeIndex[64];
   byte parent = 0;
+  byte filename[16];
   struct node_filesystem node_fs_buffer;
   struct sector_filesystem sector_fs_buffer;
 
@@ -316,8 +318,8 @@ void printCWD(char* path_str, byte current_dir) {
   //kosongin dulu
   clear(path_str, 128);
   clear(nodeIndex, 64);
-  path_str[curlen++] = '/';
   if(current_dir == FS_NODE_P_IDX_ROOT){
+    path_str[curlen++] = '/';
     printString(path_str);
     return;
   }
@@ -336,9 +338,13 @@ void printCWD(char* path_str, byte current_dir) {
   
   while(nodeCount > 0){
     nodeCount--;
-    printString("/");
-    printString(node_fs_buffer.nodes[nodeIndex[nodeCount]].name);
+    path_str[curlen++] = '/';
+    strcpy(filename, node_fs_buffer.nodes[nodeIndex[nodeCount]].name);
+    for(i = 0; i < strlen(filename); i++){
+      path_str[curlen++] = filename[i];
+    }
   }
+  printString(path_str);
 }
 
 // byte readPath(char *path_str, struct node_filesystem node_fs_buffer, struct sector_filesystem sector_fs_buffer){
