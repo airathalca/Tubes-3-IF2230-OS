@@ -6,8 +6,9 @@ void shell() {
   char command[32];
   char arg1[32];
   char arg2[32];
-  int ret_code = 0;
+  enum fs_retcode ret_code = 0;
   byte current_dir = FS_NODE_P_IDX_ROOT;
+
   while (true) {
     clear(input_buf, 64);
     clear(arg1, 32);
@@ -22,7 +23,7 @@ void shell() {
   }
 }
 
-void command_type(char *command, byte *current_dir, char*arg1, char* arg2, int *ret_code){
+void command_type(char *command, byte *current_dir, char*arg1, char* arg2, enum fs_retcode *ret_code){
   if (strcmp(command, "cd")) {
     cd(current_dir, arg1, &ret_code);
   } 
@@ -46,7 +47,6 @@ void command_type(char *command, byte *current_dir, char*arg1, char* arg2, int *
   else if (strcmp(command, "cat")) {
     cat(*current_dir, arg1, &ret_code);
   } 
-  //aira
   else if (strcmp(command, "cp")) {
     cp(current_dir, "a", "b", &ret_code);
   }
@@ -93,8 +93,7 @@ void argSplitter(char *input_buf, char *command, char* arg1, char *arg2){
   }
 }
 
-
-void cd(byte *parentIndex, char *dir, int *ret_code) {
+void cd(byte *parentIndex, char *dir, enum fs_retcode *ret_code) {
   struct node_filesystem node_fs_buffer;
   int i;
   int cur_idx = *parentIndex;
@@ -136,15 +135,14 @@ void cd(byte *parentIndex, char *dir, int *ret_code) {
   return;
 }
 
-void ls(byte parentIdx, char* arg1, int *ret_code) {
+void ls(byte parentIdx, char* arg1, enum fs_retcode *ret_code) {
   struct node_filesystem node_fs_buffer;
   int i = 0;
   byte parentFound = FS_NODE_P_IDX_ROOT;
-  //klo emg di root trs kosong print gaada aja
-  //klo emg mau nge ls tp gaada baru retcode
-  //cek dulu apakah arg1 nya ga nol?
+  
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
+
   if(arg1[0] == '\0'){
     while (i < 64) {
       if (strlen(node_fs_buffer.nodes[i].name) > 0 && node_fs_buffer.nodes[i].parent_node_index == parentIdx) {
@@ -180,7 +178,7 @@ void ls(byte parentIdx, char* arg1, int *ret_code) {
   }
 }
 
-void mv(byte parentIndex, char *source, char *target, int *ret_code) {
+void mv(byte parentIndex, char *source, char *target, enum fs_retcode *ret_code) {
 	struct node_filesystem node_fs_buffer;
   struct file_metadata *fileinfo;
 	int i = 0;
@@ -194,8 +192,6 @@ void mv(byte parentIndex, char *source, char *target, int *ret_code) {
 	readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
 	readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
 
-  printString("1");
-
   if(source[0] == '\0' || target[0] == '\0'){
     //masukin error bahwa mv harus make argunmen
     *ret_code = FS_R_NODE_NOT_FOUND;
@@ -203,11 +199,10 @@ void mv(byte parentIndex, char *source, char *target, int *ret_code) {
   }
 
   // cari dulu node yang ounya nama sama kaya siini
-  for(i = 0; i < 64; i++){
+  for(i = 0; i < 64 && !found; i++){
     if(node_fs_buffer.nodes[i].parent_node_index == parentIndex && strcmp(node_fs_buffer.nodes[i].name, source)){
       nodeFound = i;
       found = true;
-      break;
     }
   }
   if(!found){
@@ -275,20 +270,27 @@ void mv(byte parentIndex, char *source, char *target, int *ret_code) {
   writeSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
 }
 
-void cat(byte parentIndex, char *filename, int *ret_code) {
+bool checkArgs(char *filename, int *ret_code) {
+  if(filename[0] == '\0'){
+      *ret_code = FS_R_NODE_NOT_FOUND;
+      return false;
+    }
+  if(strlen(filename) > 13){
+    *ret_code = FS_W_NOT_ENOUGH_STORAGE;
+    return false;
+  }
+  return true;
+}
+
+void cat(byte parentIndex, char *filename, enum fs_retcode *ret_code) {
   //diketahui parentIndexnya trs tinggal searching node mana yang p nya sama 
   // berarti itu ada di folder tsb cek namanya sama apa ga
   struct file_metadata *fileInfo;
   int i = 0;
-  if(filename[0] == '\0'){
-    *ret_code = FS_R_NODE_NOT_FOUND;
+  if (!checkArgs(filename,ret_code)) {
     return;
   }
   fileInfo->parent_index = parentIndex;
-  if(strlen(filename) > 13){
-    *ret_code = FS_W_NOT_ENOUGH_STORAGE;
-    return;
-  }
   strcpy(fileInfo->node_name, filename);
 
   read(fileInfo, ret_code);
@@ -298,32 +300,36 @@ void cat(byte parentIndex, char *filename, int *ret_code) {
   }
 }
 
-void mkdir(byte cur_dir_idx, char *arg1, int *ret_code){
+void mkdir(byte cur_dir_idx, char *arg1, enum fs_retcode *ret_code){
   //cek dulu apakah ada folder yang namanya sama
   struct file_metadata *fileinfo;
-  int i = 0;
-  if(arg1[0] == '\0'){
-    *ret_code = FS_R_NODE_NOT_FOUND;
+  if (!checkArgs(arg1,ret_code)) {
     return;
   }
   fileinfo->parent_index = cur_dir_idx;
-  if(strlen(arg1) > 13){
-    *ret_code = FS_W_NOT_ENOUGH_STORAGE;
-    return;
-  }
   strcpy(fileinfo->node_name, arg1);
   //udah ada isinya si fileinfonya;
   write(fileinfo, ret_code);
 }
 
-void cp(byte parentIdx, char *resourcePath, char *destinationPath, int *ret_code){
+void cp(byte parentIdx, char *resourcePath, char *destinationPath, enum fs_retcode *ret_code){
   struct file_metadata *fileInfo;
   struct node_filesystem  node_fs_buffer;
   int i = 0;
   int foundEntryNode;
   bool found = false;
+
+  clear(fileInfo->buffer, 8192);
+  if (!checkArgs(resourcePath,ret_code)) {
+    return;
+  }
+  fileInfo->parent_index = parentIdx;
+  strcpy(fileInfo->node_name, resourcePath);
+  read(fileInfo, ret_code);
+
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
+
   while (i < 64 && !found) {
     if (strcmp(node_fs_buffer.nodes[i].name, destinationPath) && parentIdx == node_fs_buffer.nodes[i].parent_node_index){
       if (node_fs_buffer.nodes[i].sector_entry_index == FS_NODE_S_IDX_FOLDER) {
@@ -338,19 +344,6 @@ void cp(byte parentIdx, char *resourcePath, char *destinationPath, int *ret_code
     *ret_code = FS_W_INVALID_FOLDER;
     return;
   }
-
-  clear(fileInfo->buffer,8192);
-  if(resourcePath[0] == '\0'){
-    *ret_code = FS_R_NODE_NOT_FOUND;
-    return;
-  }
-  fileInfo->parent_index = parentIdx;
-  if(strlen(resourcePath) > 13){
-    *ret_code = FS_W_NOT_ENOUGH_STORAGE;
-    return;
-  }
-  strcpy(fileInfo->node_name, resourcePath);
-  read(fileInfo, ret_code);
   if (*ret_code != FS_SUCCESS && *ret_code != FS_R_TYPE_IS_FOLDER){
     return;
   }
@@ -421,36 +414,41 @@ byte read_absolute_path(char *path_str, enum fs_retcode *ret_code) {
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
 	readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
 
-
   clear(temp_str, 128);
   while (path_str[i] != '\0') {
-    if(path_str[i] == '/'){i++; continue;}
+    if(path_str[i] == '/') {
+      i++; 
+      continue;
+    }
+
     j = 0;
     while(path_str[i] != '\0' && path_str[i] != '/'){
       temp_str[j] = path_str[i];
       i++;
       j++;
     }
-    for(k = 0; k < 64; k++){
+    for (k = 0; k < 64 && !found; k++){
       if(strcmp(node_fs_buffer.nodes[k].name, temp_str) && node_fs_buffer.nodes[k].parent_node_index == parentIdx){
         parentIdx = k;
         found = true;
-        break;
       }
     }
 
-    if(!found){
+    if (!found){
       *ret_code = FS_R_NODE_NOT_FOUND;
       return parentIdx;
     }
+
     clear(temp_str, 128);
     i++;
   }
+
   if(node_fs_buffer.nodes[parentIdx].sector_entry_index != FS_NODE_P_IDX_ROOT){
     //harusnya file typenya file jdi gabisa ini tinggal ganti retcode
     *ret_code = FS_R_TYPE_IS_FOLDER;
     return FS_NODE_P_IDX_ROOT;
   }
+
   return parentIdx;
 }
 
@@ -469,9 +467,17 @@ void error_code(int err_code){
   case 4:
     printString("Storage is full\r\n");
     break;
-  case 7:
-    printString("No such file or directory\r\n");
+  case 5:
+    printString("Maximum file capacity achieved\r\n");
     break;
+  case 6:
+    printString("Maximum sector capacity achieved\r\n");
+    break;
+  case 7:
+    printString("No such directory exists\r\n");
+    break;
+  case 8:
+    printString("Folder already exists\r\n");
   default:
     break;
   }

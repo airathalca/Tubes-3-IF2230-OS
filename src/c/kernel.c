@@ -55,27 +55,6 @@ void printString(char *string) {
     }
 }
 
-void printInteger(int number){
-  int i = 0;
-  int j;
-  int k;
-  char str[16];
-  char rev[16];
-  while(number >= 0 && i < 10){
-    str[i] = mod(number, 10) + '0';
-    i++;
-    number = div(number, 10);
-  }
-  k = 0;
-  for(j = i - 1; j >= 0; j--){
-    rev[j] = str[k];
-    k++;
-  }
-  rev[i] = '\0';
-  printString("\r\n");
-  printString(rev);
-}
-
 void printHexa(char n)
 {
 	char number[3];
@@ -131,44 +110,11 @@ void clearScreen() {
 }
 
 void readSector(byte *buffer, int sector_number) {
-  int sector_read_count = 0x01;
-    int cylinder, sector;
-    int head, drive;
-
-    cylinder = div(sector_number, 36) << 8; // CH
-    sector   = mod(sector_number, 18) + 1;  // CL
-
-    head  = mod(div(sector_number, 18), 2) << 8; // DH
-    drive = 0x00;                                // DL
-
-    interrupt(
-        0x13,                       // Interrupt number
-        0x0200 | sector_read_count, // AX
-        buffer,                     // BX
-        cylinder | sector,          // CX
-        head | drive                // DX
-    );
+    interrupt(0x13, 0x0201,buffer,div(sector_number, 36) << 8 | mod(sector_number, 18) + 1,mod(div(sector_number, 18), 2) << 8);
 }
 
-void writeSector(byte *buffer, int sector_number) {
-  int sector_read_count = 0x01;
-    int cylinder, sector;
-    int head, drive;
-
-    cylinder = div(sector_number, 36) << 8; // CH
-    sector   = mod(sector_number, 18) + 1;  // CL
-
-    head  = mod(div(sector_number, 18), 2) << 8; // DH
-    drive = 0x00;                                // DL
-
-    interrupt(
-        0x13,                       // Interrupt number
-        0x0300 | sector_read_count, // AX
-        buffer,                     // BX
-        cylinder | sector,          // CX
-        head | drive                // DX
-    );
-
+void writeSector(byte *buffer, int sector_number) { 
+    interrupt(0x13, 0x0301, buffer, div(sector_number, 36) << 8 | mod(sector_number, 18) + 1, mod(div(sector_number, 18), 2) << 8);
 }
 
 
@@ -265,8 +211,6 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
   int emptySector = 0;
   int i = 0;
   int j = 0;
-  int k = 0;
-  int l;
   struct sector_entry buffer;
   bool found = false;
   byte parent;
@@ -411,23 +355,22 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
     return;
   } 
   else {
+    i = 0;
     //i: sector (i), k: iterator entry kosong (j), l : iterator biasa
     node_fs_buffer.nodes[emptyNode].sector_entry_index = emptySector;
-    for (l = 0; l < 256; l++) {
-
-      if (map_fs_buffer.is_filled[l]) {
+    for (j = 0; j < 256; j++) {
+      if (map_fs_buffer.is_filled[j]) {
         continue;
       }
-
-      map_fs_buffer.is_filled[l] = true;
-      buffer.sector_numbers[k] = l;
-      writeSector(metadata->buffer + k * 512, l);
-      k++;
-      if (metadata->filesize <= 512 * k) {
+      map_fs_buffer.is_filled[j] = true;
+      buffer.sector_numbers[i] = j;
+      writeSector(metadata->buffer + i * 512, j);
+      i++;
+      if (metadata->filesize <= 512 * i) {
         break;
       }
     }
-    memcpy(&sector_fs_buffer.sector_list[i], &buffer, k);
+    memcpy(&sector_fs_buffer.sector_list[i], &buffer, i);
   }
   writeSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER);
   writeSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
