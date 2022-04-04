@@ -32,7 +32,8 @@ void command_type(char *command, byte *current_dir, char*arg1, char* arg2, int *
   }
 
   else if (strcmp(command, "ls")) {
-      ls(current_dir, arg1, ret_code);
+
+      ls(*current_dir, arg1, ret_code);
   } 
 
   else if (strcmp(command, "mv")) {
@@ -144,7 +145,6 @@ void ls(byte parentIdx, char* arg1, int *ret_code) {
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
   if(arg1[0] == '\0'){
     while (i < 64) {
-      printInteger(parentIdx);
       if (node_fs_buffer.nodes[i].parent_node_index == parentIdx) {
         printString(node_fs_buffer.nodes[i].name);
         printString("\r\n");
@@ -158,7 +158,7 @@ void ls(byte parentIdx, char* arg1, int *ret_code) {
   }
   //kalo arg1 nya ga nol berarti ini nyari dulu node yg namanya sama
   for(i = 0; i < 64; i++) {
-    if (strcmp(node_fs_buffer.nodes[i].name, arg1)){
+    if (strlen(node_fs_buffer.nodes[i].name) > 0 && strcmp(node_fs_buffer.nodes[i].name, arg1) && node_fs_buffer.nodes[i].parent_node_index == parentIdx){
       parentFound = i;
       break;
     }
@@ -171,7 +171,7 @@ void ls(byte parentIdx, char* arg1, int *ret_code) {
 
   //cari lagi sesuai parent idx yang baru
   for (i = 0; i < 64; i++) {
-    if (node_fs_buffer.nodes[i].parent_node_index == parentFound){
+    if (strlen(node_fs_buffer.nodes[i].name) > 0 && node_fs_buffer.nodes[i].parent_node_index == parentFound){
       printString(node_fs_buffer.nodes[i].name);
       printString("\r\n");
     }
