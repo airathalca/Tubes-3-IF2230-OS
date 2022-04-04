@@ -32,7 +32,7 @@ void command_type(char *command, byte *current_dir, char*arg1, char* arg2, int *
   }
 
   else if (strcmp(command, "ls")) {
-      ls(*current_dir, arg1, &ret_code);
+    ls(*current_dir, arg1, &ret_code);
   } 
 
   else if (strcmp(command, "mv")) {
