@@ -219,6 +219,11 @@ void mv(byte parentIdx, char *source, char *target, int *ret_code) {
 	bool found;
 	byte addressSrc, addressTarget;
 
+  read(&fileinfo, ret_code);
+  if (*ret_code != 0){
+    return;
+  }
+
 	readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
 	readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
 
@@ -231,8 +236,7 @@ void mv(byte parentIdx, char *source, char *target, int *ret_code) {
 	}
 
 	if (found) {
-		addressSrc = i;
-    node_fs_buffer.nodes[addressSrc].parent_node_index = addressTarget;
+    fileinfo.parent_index = addressTarget;
     write(&fileinfo, ret_code);
 
 	} else {
@@ -293,6 +297,7 @@ void cp(byte parentIndex, char *resourcePath, char *destinationPath) {
     }
     i++;
   }
+
   if (i == 64) {
     printString("Folder Tidak Ditemukan.\n");
     return;
