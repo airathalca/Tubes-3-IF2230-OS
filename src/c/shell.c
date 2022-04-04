@@ -24,7 +24,7 @@ void shell() {
 
 void command_type(char *command, byte *current_dir, char*arg1, char* arg2, int *ret_code){
   if (strcmp(command, "cd")) {
-    cd(current_dir, arg1, ret_code);
+    cd(current_dir, arg1, &ret_code);
   } 
 
   else if(strcmp(command, "clear")){
@@ -33,12 +33,12 @@ void command_type(char *command, byte *current_dir, char*arg1, char* arg2, int *
 
   else if (strcmp(command, "ls")) {
 
-      ls(*current_dir, arg1, ret_code);
+      ls(*current_dir, arg1, &ret_code);
   } 
 
   else if (strcmp(command, "mv")) {
-    mv(current_dir, "test", "test2");
-  } 
+    mv(current_dir, "test", "test2", &ret_code);
+  }
 
   else if (strcmp(command, "mkdir")) {
     mkdir(current_dir, arg1, &ret_code);
@@ -212,8 +212,9 @@ void ls(byte parentIdx, char* arg1, int *ret_code) {
   }
 }
 
-void mv(byte parentIdx, char *source, char *target) {
+void mv(byte parentIdx, char *source, char *target, int *ret_code) {
 	struct node_filesystem node_fs_buffer;
+  struct file_metadata fileinfo;
 	int i = 0;
 	bool found;
 	byte addressSrc, addressTarget;
@@ -231,15 +232,13 @@ void mv(byte parentIdx, char *source, char *target) {
 
 	if (found) {
 		addressSrc = i;
+    node_fs_buffer.nodes[addressSrc].parent_node_index = addressTarget;
+    write(&fileinfo, ret_code);
 
 	} else {
 		error_code(7);
 		return;
 	}
-
-	// cd(&addressTarget, target); // target berbentuk absolute dir
-
-	node_fs_buffer.nodes[i].parent_node_index = addressTarget;
 }
 
 void cat(byte parentIndex, char *filename, int *ret_code) {
@@ -364,6 +363,42 @@ void printCWD(char* path_str, byte current_dir) {
 //   strcpy(node_name, node_fs_buffer.nodes[node_idx].name);
 
 // }
+
+byte read_absolute_path(char *path_str) {
+  char temp_str[128];
+  struct node_filesystem node_fs_buffer;
+  int i;
+  bool found;
+  byte parentIdx = 0xFF;
+
+  readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
+	readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
+
+  clear(temp_str, 128);
+
+  while (*path_str != '\0') {
+    if (*path_str == '/' && temp_str != '\0') {
+      i = 0;
+      found = false;
+
+      while (i < 64 && !found) {
+        if (node_fs_buffer.nodes[i].parent_node_index == parentIdx && strcmp(node_fs_buffer.nodes[i].name, path_str)) {
+          parentIdx = i;
+          found = true;
+        } else {
+          i++;
+        }
+      }
+
+      clear(temp_str, 128);
+    }
+
+    temp_str[strlen(temp_str)] = *path_str;
+    *path_str++;
+  }
+
+  return parentIdx;
+}
 
 void error_code(int err_code){
   switch (err_code)
