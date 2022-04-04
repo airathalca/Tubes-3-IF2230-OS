@@ -262,7 +262,7 @@ void mkdir(byte cur_dir_idx, char *arg1, int *ret_code){
   struct file_metadata fileinfo;
   fileinfo.parent_index = cur_dir_idx;
   fileinfo.filesize = 0;
-  memcpy(&fileinfo.node_name, arg1, strlen(arg1));
+  strcpy(&fileinfo.node_name, arg1);
   //udah ada isinya si fileinfonya;
   write(&fileinfo, ret_code);
 }
@@ -315,31 +315,29 @@ void printCWD(char* path_str, byte current_dir) {
   readSector(&sector_fs_buffer, FS_SECTOR_SECTOR_NUMBER);
   //kosongin dulu
   clear(path_str, 128);
+  clear(nodeIndex, 64);
   path_str[curlen++] = '/';
   if(current_dir == FS_NODE_P_IDX_ROOT){
     printString(path_str);
     return;
   }
   //masukan current dir ke array of node index
-  nodeIndex[nodeCount++] = current_dir;
-  // misal skrg ga di root tp di /a/b/c
+  //misal skrg di /a/b
+  // /a/b/c
+  nodeIndex[nodeCount] = current_dir;
+  nodeCount++;
   //loop sampe parentnya oxFF
   parent = node_fs_buffer.nodes[current_dir].parent_node_index;
-  printInteger(current_dir);
-  printInteger(parent);
   while(parent != FS_NODE_P_IDX_ROOT){
-    nodeIndex[nodeCount++] = parent;
+    nodeIndex[nodeCount] = parent;
     parent = node_fs_buffer.nodes[parent].parent_node_index;
+    nodeCount++;
   }
-  //parent udah 0xFF dan skrg nodeIndex berisi node dari awal sampe akhir tp kebalik
-  //copy namanya dari awal sampe akhir curlen skrg udah 1
+  
   while(nodeCount > 0){
-    strcpy(path_str + curlen, node_fs_buffer.nodes[nodeIndex[nodeCount]].name);
     nodeCount--;
-    curlen += strlen(node_fs_buffer.nodes[nodeIndex[nodeCount]].name);
-    if(nodeCount > 0){
-      path_str[curlen++] = '/';
-    }
+    printString("/");
+    printString(node_fs_buffer.nodes[nodeIndex[nodeCount]].name);
   }
 }
 
