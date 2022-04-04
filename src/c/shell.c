@@ -96,15 +96,11 @@ void argSplitter(char *input_buf, char *command, char* arg1, char *arg2){
 
 void cd(byte *parentIndex, char *dir, int *ret_code) {
   struct node_filesystem node_fs_buffer;
-  char temp_str[128];
   int i;
-  bool found = false;
   int cur_idx = *parentIndex;
 
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
 	readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
-
-	clear(temp_str, 128);
   
   // kalo gaada dir nya
   if(dir[0] == '\0'){
@@ -114,7 +110,7 @@ void cd(byte *parentIndex, char *dir, int *ret_code) {
 
   //masalah absolute pathing
   if(dir[0] == '/'){
-    //placeholder
+    *parentIndex = read_absolute_path(dir, ret_code);
     *ret_code = FS_W_NOT_ENOUGH_STORAGE;
     return;
   }
@@ -139,34 +135,6 @@ void cd(byte *parentIndex, char *dir, int *ret_code) {
 
   *ret_code = FS_SUCCESS;
   return;
-
-	// while (*dir != '\0') {
-	// 	if (dir[0] == '/') {
-	// 		i = 0;
-	// 		while (i < 64 && !found) {
-	// 			if (node_fs_buffer.nodes[i].sector_entry_index == FS_NODE_S_IDX_FOLDER && node_fs_buffer.nodes[i].parent_node_index == *parentIndex && strcmp(node_fs_buffer.nodes[i].name, temp_str)) {
-	// 				found = true;
-	// 			} else {
-	// 				i++;
-	// 			}
-	// 		}
-
-	// 		if (found) {
-	// 			*parentIndex = i;
-
-	// 		} else {
-	// 			error_code(7);
-	// 			break;
-	// 		}
-
-	// 		clear(temp_str, 128);
-
-	// 	} else {
-	// 		temp_str[strlen(temp_str)] = *dir;
-	// 	}
-
-	// 	dir++;
-	// }
 }
 
 void ls(byte parentIdx, char* arg1, int *ret_code) {
