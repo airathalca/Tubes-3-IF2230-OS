@@ -23,7 +23,7 @@ void shell() {
   }
 }
 
-void command_type(char *command, byte *current_dir, char*arg1, char* arg2, enum fs_retcode *ret_code){
+void command_type(char *command, byte *current_dir, char* arg1, char* arg2, enum fs_retcode *ret_code){
   if (strcmp(command, "cd")) {
     cd(current_dir, arg1, &ret_code);
   } 
@@ -63,6 +63,7 @@ void argSplitter(char *input_buf, char *command, char* arg1, char *arg2){
   int now = 0;
   int k;
   int count = 0;
+  
   while(input_buf[i] != '\0') {
     if(count == 0){
       k = 0;
@@ -179,9 +180,10 @@ void ls(byte parentIdx, char* arg1, enum fs_retcode *ret_code) {
 }
 
 void mv(byte parentIndex, char *source, char *target, enum fs_retcode *ret_code) {
-	struct node_filesystem node_fs_buffer;
-  struct file_metadata *fileinfo;
+	struct file_metadata *fileinfo;
+  struct node_filesystem node_fs_buffer;
 	int i = 0;
+
 	byte addressSrc, addressTarget;
   byte ROOT = FS_NODE_P_IDX_ROOT;
   byte nodeFound = 0;
@@ -212,19 +214,18 @@ void mv(byte parentIndex, char *source, char *target, enum fs_retcode *ret_code)
 
   // //isi fileinfo
   fileinfo->parent_index = parentIndex;
-   if(strlen(source) > 13){
+  if(strlen(source) > 13){
     *ret_code = FS_W_NOT_ENOUGH_STORAGE;
     return;
   }
-
 
   strcpy(fileinfo->node_name, source);
   // printString("4");
   read(fileinfo, ret_code);
 
-  // //folder udah kesisi tinggal cek ada yang namanya sama ga di root
-  // //skrg bisa mindahin ke folder atau root atau abs
-  // //root
+  //folder udah kesisi tinggal cek ada yang namanya sama ga di root
+  //skrg bisa mindahin ke folder atau root atau abs
+  //root
   if(target[0] == '/'){
     fileinfo->parent_index = FS_NODE_P_IDX_ROOT;
     if(target[1] != '\0'){
@@ -241,13 +242,14 @@ void mv(byte parentIndex, char *source, char *target, enum fs_retcode *ret_code)
     if(parentIndex != FS_NODE_P_IDX_ROOT){
       ROOT = node_fs_buffer.nodes[parentIndex].parent_node_index;
     }
-    if(target[3] != '\0'){
-      strcpy(fileinfo->node_name, target+3);
-    }
     if(strlen(target+3) > 13){
       *ret_code = FS_W_NOT_ENOUGH_STORAGE;
       return;
     }
+    if(target[3] != '\0'){
+      strcpy(fileinfo->node_name, target+3);
+    }
+    
     fileinfo->parent_index = ROOT;
     node_fs_buffer.nodes[nodeFound].parent_node_index = ROOT;
   }else{
