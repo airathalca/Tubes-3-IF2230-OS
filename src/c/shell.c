@@ -40,7 +40,7 @@ void command_type(char *command, byte *current_dir, char*arg1, char* arg2, int *
   }
 
   else if (strcmp(command, "mkdir")) {
-    mkdir(current_dir, arg1, &ret_code);
+    mkdir(*current_dir, arg1, &ret_code);
   } 
 
   else if (strcmp(command, "cat")) {
@@ -246,9 +246,17 @@ void cat(byte parentIndex, char *filename, int *ret_code) {
 void mkdir(byte cur_dir_idx, char *arg1, int *ret_code){
   //cek dulu apakah ada folder yang namanya sama
   struct file_metadata fileinfo;
+  int i;
   fileinfo.parent_index = cur_dir_idx;
   fileinfo.filesize = 0;
-  strcpy(&fileinfo.node_name, arg1);
+  if (strlen(arg1) > 13) {
+    *ret_code = FS_W_NOT_ENOUGH_STORAGE;
+    return;
+  }
+  for (i = 0; i < strlen(arg1);i++) {
+    fileinfo.node_name[i] = arg1[i];
+  }
+  fileinfo.node_name[i] = 0x0; 
   //udah ada isinya si fileinfonya;
   write(&fileinfo, ret_code);
 }

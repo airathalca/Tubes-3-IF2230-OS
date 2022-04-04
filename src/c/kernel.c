@@ -298,11 +298,10 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
   unsigned int sizenow;
 
   readSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER);
-  readSector(&node_fs_buffer.nodes, FS_NODE_SECTOR_NUMBER);
-  readSector(&node_fs_buffer.nodes[32], FS_NODE_SECTOR_NUMBER + 1);
-  readSector(&sector_fs_buffer, FS_SECTOR_SECTOR_NUMBER);
+  readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
+  readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
+  readSector(&sector_fs_buffer.sector_list, FS_SECTOR_SECTOR_NUMBER);
 
-  printString("1");
   // 1. Cari node dengan nama dan lokasi parent yang sama pada node.
   //    Jika tidak ditemukan kecocokan, lakukan proses ke-2.
   //    Jika ditemukan node yang cocok, tuliskan retcode 
@@ -311,16 +310,10 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
     if (strcmp(node_fs_buffer.nodes[i].name, metadata->node_name) && 
     metadata->parent_index == node_fs_buffer.nodes[i].parent_node_index){
       found = true;
+      break;
     }
     i++;
   }
-  // printString(node_fs_buffer.nodes[i].name);
-  printString("\r\n");
-  if(strcmp(node_fs_buffer.nodes[i].name, metadata->node_name)){
-    printString("AAAAAA\r\n");
-  }
-  printString(&metadata->node_name);
-  printString("\r\n");
   if (found) {
     *return_code = FS_W_FILE_ALREADY_EXIST;
     return;
@@ -330,8 +323,6 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
     *return_code = FS_W_NOT_ENOUGH_STORAGE;
     return;
   }
-
-  printString("2");
   // 2. Cari entri kosong pada filesystem node dan simpan indeks.
   //    Jika ada entry kosong, simpan indeks untuk penulisan.
   //    Jika tidak ada entry kosong, tuliskan FS_W_MAXIMUM_NODE_ENTRY
@@ -366,9 +357,6 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
   //    Jika ukuran filesize melebihi 8192 bytes, tuliskan retcode
   //    FS_W_NOT_ENOUGH_STORAGE dan keluar.
   //    Jika tersedia empty space, lanjutkan langkah ke-5.
-
-  printString(&metadata->filesize);
-
   if (metadata->filesize > 8192) {
     *return_code = FS_W_NOT_ENOUGH_STORAGE;
     return;
@@ -377,6 +365,9 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
   sizenow = metadata->filesize;
 
   for (i = 0; i < 512; i++) {
+    if (sizenow <= 0) {
+      break;
+    }
     if (!map_fs_buffer.is_filled[i]) {
       sizenow -= 512;
     }
