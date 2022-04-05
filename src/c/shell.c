@@ -184,105 +184,6 @@ void ls(byte parentIdx, char* arg1, enum fs_retcode *ret_code) {
   }
 }
 
-// void mv(byte parentIndex, char *source, char *target, enum fs_retcode *ret_code) {
-// 	struct file_metadata *fileinfo;
-//   struct node_filesystem node_fs_buffer;
-// 	int i = 0;
-
-// 	byte addressSrc, addressTarget;
-//   byte ROOT = FS_NODE_P_IDX_ROOT;
-//   byte nodeFound = 0;
-//   bool alreadySame = false;
-//   bool isFile = false;
-//   bool found = false;
-
-// 	readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
-// 	readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
-
-//   if(source[0] == '\0' || target[0] == '\0'){
-//     //masukin error bahwa mv harus make argunmen
-//     *ret_code = FS_R_NODE_NOT_FOUND;
-//     return;
-//   }
-
-//   // cari dulu node yang ounya nama sama kaya siini
-//   for(i = 0; i < 64 && !found; i++){
-//     if(node_fs_buffer.nodes[i].parent_node_index == parentIndex && strcmp(node_fs_buffer.nodes[i].name, source)){
-//       nodeFound = i;
-//       found = true;
-//     }
-//   }
-//   if(!found){
-//     *ret_code = FS_R_NODE_NOT_FOUND;
-//     return;
-//   }
-
-//   // //isi fileinfo
-//   fileinfo->parent_index = parentIndex;
-//   if(strlen(source) > 13){
-//     *ret_code = FS_W_NOT_ENOUGH_STORAGE;
-//     return;
-//   }
-
-//   strcpy(fileinfo->node_name, source);
-//   // printString("4");
-//   read(fileinfo, ret_code);
-
-//   //folder udah kesisi tinggal cek ada yang namanya sama ga di root
-//   //skrg bisa mindahin ke folder atau root atau abs
-//   //root
-//   if(target[0] == '/'){
-//     fileinfo->parent_index = FS_NODE_P_IDX_ROOT;
-//     if(target[1] != '\0'){
-//       strcpy(fileinfo->node_name, target+1);
-//     }
-//     if(strlen(target+1) > 13){
-//       *ret_code = FS_W_NOT_ENOUGH_STORAGE;
-//       return;
-//     }
-//     node_fs_buffer.nodes[nodeFound].parent_node_index = fileinfo->parent_index;
-//   }
-//   else if(target[0] == '.' && target[1] == '.' && target[2] == '/'){
-//     //cari juga nama yang sama
-//     if(parentIndex != FS_NODE_P_IDX_ROOT){
-//       ROOT = node_fs_buffer.nodes[parentIndex].parent_node_index;
-//     }
-//     if(strlen(target+3) > 13){
-//       *ret_code = FS_W_NOT_ENOUGH_STORAGE;
-//       return;
-//     }
-//     if(target[3] != '\0'){
-//       strcpy(fileinfo->node_name, target+3);
-//     }
-    
-//     fileinfo->parent_index = ROOT;
-//     node_fs_buffer.nodes[nodeFound].parent_node_index = ROOT;
-//   }else{
-//     // pindahin ke dalem folder cari index si foldernya
-//     for(i = 0; i < 64; i++){
-//       if(node_fs_buffer.nodes[i].parent_node_index == parentIndex && strcmp(node_fs_buffer.nodes[i].name, target)){
-//         ROOT = i;
-//         break;
-//       }
-//     }
-//     if(i == 64){
-//       *ret_code = FS_R_NODE_NOT_FOUND;
-//       return;
-//     }
-//     if(strlen(target) > 13){
-//       *ret_code = FS_W_NOT_ENOUGH_STORAGE;
-//       return;
-//     }
-//     fileinfo->parent_index = ROOT;
-//     node_fs_buffer.nodes[nodeFound].parent_node_index = ROOT;
-//     strcpy(fileinfo->node_name, target);
-//   }
-//   strcpy(node_fs_buffer.nodes[nodeFound].name, fileinfo->node_name);
-//   write(fileinfo, ret_code);
-//   writeSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
-//   writeSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
-// }
-
 void mv(byte parentIndex, char *source, char *target, enum fs_retcode *ret_code) {
   char buffer[8192];
   struct node_filesystem node_fs_buffer;
@@ -290,6 +191,9 @@ void mv(byte parentIndex, char *source, char *target, enum fs_retcode *ret_code)
   byte ROOT = FS_NODE_P_IDX_ROOT;
   int i;
   int j;
+  if (!checkArgs(source,ret_code)) {
+    return;
+  }
   clear(buffer, 8192);
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
@@ -422,16 +326,18 @@ void cp(byte parentIdx, char *resourcePath, char *destinationPath, enum fs_retco
   i = 0;
   while (i < 64) {
     if (strcmp(node_fs_buffer.nodes[i].name, destinationPath) && parentIdx == node_fs_buffer.nodes[i].parent_node_index){
-      if (node_fs_buffer.nodes[i].sector_entry_index == FS_NODE_S_IDX_FOLDER) {
-        break;
-      }
-    } 
-    else {
+      break;
+    } else {
       i++;
     }
   }
   if (i == 64) {
-    *ret_code = FS_W_INVALID_FOLDER;
+    strcpy(fileInfo->node_name, destinationPath);
+    write(fileInfo, ret_code);
+    return;
+  }
+  else if (node_fs_buffer.nodes[i].sector_entry_index != FS_NODE_S_IDX_FOLDER) {
+    *ret_code = FS_W_FILE_ALREADY_EXIST;
     return;
   }
   fileInfo->parent_index = i;
@@ -439,7 +345,6 @@ void cp(byte parentIdx, char *resourcePath, char *destinationPath, enum fs_retco
 }
 
 void printCWD(char* path_str, byte current_dir) {
-  //current_dir ini udah byte node anjir
   int i = 0;
   int nodeCount = 0;
   int curlen = 0;
