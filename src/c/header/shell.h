@@ -13,7 +13,7 @@ void ls(byte parentIndex, char *arg1, enum fs_retcode *ret_code);
 void cat(byte parentIndex, char *arg1, enum fs_retcode *ret_code);
 void cp(byte parentIndex, char *resourcePath, char *destinationPath, enum fs_retcode *ret_code);
 void printCWD(char *path_str, byte current_dir);
-void error_code(int error_code);
+void error_code(int error_code, char *command, char* arg1, char*arg2);
 void mkdir(byte parentIndex, char *arg1, enum fs_retcode *ret_code);
 void mv(byte parentIdx, char *source, char *target, enum fs_retcode *ret_code);
 bool checkArgs(char *filename, int *ret_code);

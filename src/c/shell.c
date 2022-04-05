@@ -54,7 +54,7 @@ void command_type(char *command, byte *current_dir, char* arg1, char* arg2, enum
       printString("Unknown command\r\n");
   }
 
-  error_code(ret_code);
+  error_code(ret_code, command, arg1, arg2);
 }
 
 void argSplitter(char *input_buf, char *command, char* arg1, char *arg2){
@@ -171,7 +171,7 @@ void ls(byte parentIdx, char* arg1, enum fs_retcode *ret_code) {
   }
 
   if(i == 64){
-    *ret_code = FS_R_NODE_NOT_FOUND;
+    *ret_code = FS_SUCCESS;
     return;
   }
 
@@ -478,20 +478,27 @@ byte read_relative_path(byte parentIdx, char *path_str, enum fs_retcode *ret_cod
   return parentIdx;
 }
 
-void error_code(int err_code){
+void error_code(int err_code, char*command, char*arg1, char*arg2){
+  if(err_code != 0){
+    printString(command);
+    printString(": ");
+  }
   switch (err_code)
   {
   case -1:
     printString("Unknown Error\r\n");
     break;
   case 1:
-    printString("File not found\r\n");
+    printString(arg1);
+    printString(": File not found\r\n");
     break;
   case 2:
-    printString("This is directory not file\r\n");
+    printString(arg1);
+    printString(": Is a directory\r\n");
     break;
   case 3:
-    printString("File already exists\r\n");
+    printString(arg2);
+    printString(": File already exists\r\n");
     break;
   case 4:
     printString("Storage is full\r\n");
@@ -503,10 +510,12 @@ void error_code(int err_code){
     printString("Maximum sector capacity achieved\r\n");
     break;
   case 7:
-    printString("No such directory exists\r\n");
+    printString(arg2);
+    printString(": No such directory exists\r\n");
     break;
   case 8:
-    printString("Folder already exists\r\n");
+    printString(arg1);
+    printString(": Folder already exists\r\n");
   default:
     break;
   }
