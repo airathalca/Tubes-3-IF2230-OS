@@ -12,8 +12,8 @@ This project is made to fulfill the 1st milestone for the Operating System. It i
 
 ## Screenshots
 
-![image](https://user-images.githubusercontent.com/63847012/156034629-ebfcf38c-c7d3-4368-8525-91f661333ecf.png)
-![image](https://user-images.githubusercontent.com/63847012/156034667-9fd9a24b-f57f-4de3-bc21-76766125d605.png)
+![image](https://user-images.githubusercontent.com/63847012/161774200-b41ea274-861f-426f-afa0-11670bc6ed01.png)
+![image](https://user-images.githubusercontent.com/63847012/161774340-fcd429be-9e05-4b83-a82a-47ed319cd181.png)
 
 ## Technologies Used
 
@@ -43,20 +43,20 @@ sudo apt install nasm bcc bin86 bochs bochs-x make
 4. run `make all run` and viola! the bochs emulator should pop up and the os are ready to be used
 
 ## Command
-1. clear - to clear the screen
-2. cd <target_dir> - move from current directory to target dir
-3. ls [folder] - list all the files or folder in folder name
-4. mv <file or folder> <target_dir>/[new_name] - move file or folder in current dir to the destination and be able to rename the file if the argument is specified
-5. mkdir <folder_name> - to create new folder in current dir
-6. cat <file_name> - to read and display file
-7. cp <file or folder> <target> - copy file to target dir if no folder exists will rename to target
+1. `clear` - to clear the screen
+2. `cd <target_dir>` - move from current directory to target dir
+3. `ls [folder]` - list all the files or folder in folder name
+4. `mv <file or folder> <target_dir>/[new_name]` - move file or folder in current dir to the destination and be able to rename the file if the argument is specified
+5. `mkdir <folder_name>` - to create new folder in current dir
+6. `cat <file_name>` - to read and display file
+7. `cp <file or folder> <target>` - copy file to target dir if no folder exists will rename to target
 
-8. [OPTIONAL] - if not specified refer to cwd 
-9. <MANDATORY> - this argument is must in order to run
+8. `[OPTIONAL]` - if not specified refer to cwd 
+9. `<MANDATORY>` - this argument is must in order to run
 
 ## Usage
 
-1. After you run the OS the clearFunction will run by default and it will clear the screen into nothing
+1. After you run the OS the clearFunction will run by default and it will clear the screen leaving the shell with the location of curdir
 2. You can type any character, or command in that will go to the buffer with 128 byte size.
 3. If you pressed enter, the text you typed before will be process as command.
 
