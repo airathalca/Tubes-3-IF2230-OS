@@ -131,9 +131,7 @@ void ls(byte parentIdx, char* arg1, enum fs_retcode *ret_code) {
       }
       i++;
     }
-    if(i == 64){
-      *ret_code = FS_R_NODE_NOT_FOUND;
-    }
+    *ret_code = FS_SUCCESS;
     return;
   }
   //kalo arg1 nya ga nol berarti ini nyari dulu node yg namanya sama
@@ -145,7 +143,7 @@ void ls(byte parentIdx, char* arg1, enum fs_retcode *ret_code) {
   }
 
   if(i == 64){
-    *ret_code = FS_SUCCESS;
+    *ret_code = FS_W_INVALID_FOLDER;
     return;
   }
 
@@ -454,10 +452,14 @@ byte read_relative_path(byte parentIdx, char *path_str, enum fs_retcode *ret_cod
 }
 
 void error_code(int err_code, char*command, char*arg1, char*arg2){
+  int arg1_len = 0;
+  int arg2_len = 0;
   if(err_code != 0){
     printString(command);
     printString(": ");
   }
+  arg1_len = strlen(arg1);
+  arg2_len = strlen(arg2);
   switch (err_code)
   {
   case -1:
@@ -465,15 +467,18 @@ void error_code(int err_code, char*command, char*arg1, char*arg2){
     break;
   case 1:
     printString(arg1);
-    printString(": File not found\r\n");
+    if(arg1_len) printString(" ");
+    printString("File not found\r\n");
     break;
   case 2:
     printString(arg1);
-    printString(": Is a directory\r\n");
+    if(arg1_len) printString(" ");
+    printString("Is a directory\r\n");
     break;
   case 3:
     printString(arg2);
-    printString(": File already exists\r\n");
+    if(arg2_len) printString(" ");
+    printString(" File already exists\r\n");
     break;
   case 4:
     printString("Storage is full\r\n");
@@ -485,12 +490,16 @@ void error_code(int err_code, char*command, char*arg1, char*arg2){
     printString("Maximum sector capacity achieved\r\n");
     break;
   case 7:
+    printString(arg1);
+    if(arg1_len) printString(" ");
     printString(arg2);
-    printString(": No such directory exists\r\n");
+    if(arg2_len) printString(" ");
+    printString("No such directory exists\r\n");
     break;
   case 8:
     printString(arg1);
-    printString(": Folder already exists\r\n");
+    if(arg1_len) printString(" ");
+    printString("Folder already exists\r\n");
   default:
     break;
   }

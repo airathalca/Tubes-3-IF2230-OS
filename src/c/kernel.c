@@ -154,7 +154,7 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
   }
 
   if (!found){
-    *return_code = FS_R_TYPE_IS_FOLDER;
+    *return_code = FS_R_NODE_NOT_FOUND;
     return;
   }
 
