@@ -194,6 +194,9 @@ void mv(byte parentIndex, char *source, char *target, enum fs_retcode *ret_code)
   byte ROOT = FS_NODE_P_IDX_ROOT;
   int i;
   int j;
+  if (!checkArgs(source,ret_code)) {
+    return;
+  }
   clear(buffer, 8192);
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
@@ -329,16 +332,18 @@ void cp(byte parentIdx, char *resourcePath, char *destinationPath, enum fs_retco
   i = 0;
   while (i < 64) {
     if (strcmp(node_fs_buffer.nodes[i].name, destinationPath) && parentIdx == node_fs_buffer.nodes[i].parent_node_index){
-      if (node_fs_buffer.nodes[i].sector_entry_index == FS_NODE_S_IDX_FOLDER) {
-        break;
-      }
-    } 
-    else {
+      break;
+    } else {
       i++;
     }
   }
   if (i == 64) {
-    *ret_code = FS_W_INVALID_FOLDER;
+    strcpy(fileInfo->node_name, destinationPath);
+    write(fileInfo, ret_code);
+    return;
+  }
+  else if (node_fs_buffer.nodes[i].sector_entry_index != FS_NODE_S_IDX_FOLDER) {
+    *ret_code = FS_W_FILE_ALREADY_EXIST;
     return;
   }
   fileInfo->parent_index = i;
@@ -346,7 +351,6 @@ void cp(byte parentIdx, char *resourcePath, char *destinationPath, enum fs_retco
 }
 
 void printCWD(char* path_str, byte current_dir) {
-  //current_dir ini udah byte node anjir
   int i = 0;
   int nodeCount = 0;
   int curlen = 0;
