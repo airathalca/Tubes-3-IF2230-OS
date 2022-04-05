@@ -446,6 +446,7 @@ void printCWD(char* path_str, byte current_dir) {
   byte nodeIndex[64];
   byte parent = 0;
   byte filename[16];
+  bool isTruncated;
   struct node_filesystem node_fs_buffer;
   struct sector_filesystem sector_fs_buffer;
 
@@ -473,17 +474,30 @@ void printCWD(char* path_str, byte current_dir) {
     nodeCount++;
   }
   
+  isTruncated = false;
   while(nodeCount > 0 && curlen < 128){
     nodeCount--;
     path_str[curlen++] = '/';
     strcpy(filename, node_fs_buffer.nodes[nodeIndex[nodeCount]].name);
+
     if(curlen + strlen(filename) > 128){
+      isTruncated = true;
       break;
     }
+
     for(i = 0; i < strlen(filename); i++){
       path_str[curlen++] = filename[i];
     }
   }
+
+  if (isTruncated) {
+    printString("../");
+    printString(node_fs_buffer.nodes[nodeIndex[1]].name);
+    printString("/");
+    printString(node_fs_buffer.nodes[nodeIndex[0]].name);
+    return;
+  }
+
   printString(path_str);
 }
 
