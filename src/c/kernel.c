@@ -125,8 +125,6 @@ void fillKernelMap(){
   for(i = 0; i < 512; i++) {
     if(i < 16 || i > 256){
       map_fs_buffer.is_filled[i] = true;
-    } else {
-      map_fs_buffer.is_filled[i] = false;
     }
   }
   writeSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER); 
