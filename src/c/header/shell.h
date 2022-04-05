@@ -18,6 +18,6 @@ void mkdir(byte parentIndex, char *arg1, enum fs_retcode *ret_code);
 void mv(byte parentIdx, char *source, char *target, enum fs_retcode *ret_code);
 bool checkArgs(char *filename, int *ret_code);
 
-byte read_absolute_path(char *path_str, enum fs_retcode *ret_code);
+byte read_relative_path(byte parentIdx, char *path_str, enum fs_retcode *ret_code);
 
 #endif
