@@ -113,32 +113,6 @@ void cd(byte *parentIndex, char *dir, enum fs_retcode *ret_code) {
   } else {
     *parentIndex = read_relative_path(*parentIndex, dir, ret_code);
   }
-
-  // //balik ke parent
-  // if(dir[0] == '.' && dir[1] == '.'){
-  //   if(cur_idx == FS_NODE_P_IDX_ROOT){
-  //     *ret_code = FS_W_INVALID_FOLDER;
-  //     return;
-  //   }
-  //   *parentIndex = node_fs_buffer.nodes[cur_idx].parent_node_index;
-  //   *ret_code = FS_SUCCESS;
-  //   return;
-  // }
-  // //if ada dir nya
-  // for(i = 0; i < 64; i++) {
-  //   if(strcmp(node_fs_buffer.nodes[i].name, dir) && node_fs_buffer.nodes[i].parent_node_index == cur_idx){
-  //     if (node_fs_buffer.nodes[i].sector_entry_index == FS_NODE_S_IDX_FOLDER) {
-  //       *parentIndex = i;
-  //       break;
-  //     }
-  //   }
-  // }
-  // if (i == 64) {
-  //   *ret_code = FS_W_INVALID_FOLDER;
-  //   return;
-  // }
-  // *ret_code = FS_SUCCESS;
-  // return;
 }
 
 void ls(byte parentIdx, char* arg1, enum fs_retcode *ret_code) {
@@ -329,23 +303,24 @@ void cp(byte parentIdx, char *resourcePath, char *destinationPath, enum fs_retco
   if (*ret_code != 0) {
     return;
   }
-  i = 0;
-  while (i < 64) {
-    if (strcmp(node_fs_buffer.nodes[i].name, destinationPath) && parentIdx == node_fs_buffer.nodes[i].parent_node_index){
-      break;
-    } else {
-      i++;
-    }
+
+  if(destinationPath[0] == '\0'){
+    *ret_code = FS_R_NODE_NOT_FOUND;
+    return;
+
+  } else if(destinationPath[0] == '/'){
+    i = read_relative_path(FS_NODE_P_IDX_ROOT, destinationPath + 1, ret_code);
+
+  } else {
+    i = read_relative_path(parentIdx, destinationPath, ret_code);
   }
-  if (i == 64) {
+
+  if (i == parentIdx) {
     strcpy(fileInfo->node_name, destinationPath);
     write(fileInfo, ret_code);
     return;
   }
-  else if (node_fs_buffer.nodes[i].sector_entry_index != FS_NODE_S_IDX_FOLDER) {
-    *ret_code = FS_W_FILE_ALREADY_EXIST;
-    return;
-  }
+
   fileInfo->parent_index = i;
   write(fileInfo, ret_code);
 }
