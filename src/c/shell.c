@@ -419,6 +419,7 @@ byte read_absolute_path(char *path_str, enum fs_retcode *ret_code) {
 	readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
 
   clear(temp_str, 128);
+  
   while (path_str[i] != '\0') {
     if(path_str[i] == '/') {
       i++; 
@@ -431,8 +432,10 @@ byte read_absolute_path(char *path_str, enum fs_retcode *ret_code) {
       i++;
       j++;
     }
+
+    found = false;
     for (k = 0; k < 64 && !found; k++){
-      if(strcmp(node_fs_buffer.nodes[k].name, temp_str) && node_fs_buffer.nodes[k].parent_node_index == parentIdx){
+      if(strcmp(temp_str, node_fs_buffer.nodes[k].name) && node_fs_buffer.nodes[k].parent_node_index == parentIdx){ // SALAH DISINI
         parentIdx = k;
         found = true;
       }
@@ -440,17 +443,17 @@ byte read_absolute_path(char *path_str, enum fs_retcode *ret_code) {
 
     if (!found){
       *ret_code = FS_R_NODE_NOT_FOUND;
-      return parentIdx;
-    }
+      return;
+    } else {
 
-    clear(temp_str, 128);
-    i++;
+      clear(temp_str, 128);
+    }
   }
 
   if(node_fs_buffer.nodes[parentIdx].sector_entry_index != FS_NODE_P_IDX_ROOT){
     //harusnya file typenya file jdi gabisa ini tinggal ganti retcode
     *ret_code = FS_R_TYPE_IS_FOLDER;
-    return FS_NODE_P_IDX_ROOT;
+    return;
   }
 
   return parentIdx;
