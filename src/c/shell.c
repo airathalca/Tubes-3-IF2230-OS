@@ -30,6 +30,7 @@ void command_type(char *command, byte *current_dir, char* arg1, char* arg2, enum
 
   else if(strcmp(command, "clear")){
     clearScreen();
+    return;
   }
 
   else if (strcmp(command, "ls")) {
@@ -51,7 +52,8 @@ void command_type(char *command, byte *current_dir, char* arg1, char* arg2, enum
     cp(*current_dir, arg1, arg2, &ret_code);
   }
   else {
-      printString("Unknown command\r\n");
+    printString("Unknown command\r\n");
+    return;
   }
 
   error_code(ret_code, command, arg1, arg2);
