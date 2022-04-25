@@ -1,4 +1,6 @@
 #include "kernel.h"
+#include "textio.h"
+#include "string.h"
 
 #ifndef _SHELL_H_
 #define _SHELL_H_

@@ -1,7 +1,7 @@
 #include "header/shell.h"
 
 void shell() {
-  char input_buf[64];
+  char input_buf[128];
   char path_str[128];
   char command[32];
   char arg1[32];
@@ -10,7 +10,7 @@ void shell() {
   byte current_dir = FS_NODE_P_IDX_ROOT;
 
   while (true) {
-    clear(input_buf, 64);
+    clear(input_buf, 128);
     clear(arg1, 32);
     clear(arg2, 32);
     clear(command, 32);
