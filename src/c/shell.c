@@ -14,10 +14,10 @@ void shell() {
     clear(arg1, 32);
     clear(arg2, 32);
     clear(command, 32);
-    printString("user@uSUSbuntuOS:");
+    puts("user@uSUSbuntuOS:");
     printCWD(path_str, current_dir);
-    printString("$ ");
-    readString(input_buf);
+    puts("$ ");
+    gets(input_buf);
     argSplitter(&input_buf, &command, &arg1, &arg2);
     command_type(&command, &current_dir, &arg1, &arg2, &ret_code);
   }
@@ -52,7 +52,7 @@ void command_type(char *command, byte *current_dir, char* arg1, char* arg2, enum
     cp(*current_dir, arg1, arg2, &ret_code);
   }
   else {
-    printString("Unknown command\r\n");
+    puts("Unknown command\r\n");
     return;
   }
 
@@ -128,8 +128,8 @@ void ls(byte parentIdx, char* arg1, enum fs_retcode *ret_code) {
   if(arg1[0] == '\0'){
     while (i < 64) {
       if (strlen(node_fs_buffer.nodes[i].name) > 0 && node_fs_buffer.nodes[i].parent_node_index == parentIdx) {
-        printString(node_fs_buffer.nodes[i].name);
-        printString("\r\n");
+        puts(node_fs_buffer.nodes[i].name);
+        puts("\r\n");
       }
       i++;
     }
@@ -152,8 +152,8 @@ void ls(byte parentIdx, char* arg1, enum fs_retcode *ret_code) {
   //cari lagi sesuai parent idx yang baru
   for (i = 0; i < 64; i++) {
     if (strlen(node_fs_buffer.nodes[i].name) > 0 && node_fs_buffer.nodes[i].parent_node_index == parentFound){
-      printString(node_fs_buffer.nodes[i].name);
-      printString("\r\n");
+      puts(node_fs_buffer.nodes[i].name);
+      puts("\r\n");
     }
   }
 
@@ -271,8 +271,8 @@ void cat(byte parentIndex, char *filename, enum fs_retcode *ret_code) {
 
   read(fileInfo, ret_code);
   if(*ret_code == 0){
-    printString(fileInfo->buffer);
-    printString("\r\n");
+    puts(fileInfo->buffer);
+    puts("\r\n");
   }
 }
 
@@ -344,7 +344,7 @@ void printCWD(char* path_str, byte current_dir) {
   clear(nodeIndex, 64);
   if(current_dir == FS_NODE_P_IDX_ROOT){
     path_str[curlen++] = '/';
-    printString(path_str);
+    puts(path_str);
     return;
   }
   //masukan current dir ke array of node index
@@ -377,14 +377,14 @@ void printCWD(char* path_str, byte current_dir) {
   }
 
   if (isTruncated) {
-    printString("../");
-    printString(node_fs_buffer.nodes[nodeIndex[1]].name);
-    printString("/");
-    printString(node_fs_buffer.nodes[nodeIndex[0]].name);
+    puts("../");
+    puts(node_fs_buffer.nodes[nodeIndex[1]].name);
+    puts("/");
+    puts(node_fs_buffer.nodes[nodeIndex[0]].name);
     return;
   }
 
-  printString(path_str);
+  puts(path_str);
 }
 
 byte read_relative_path(byte parentIdx, char *path_str, enum fs_retcode *ret_code) {
@@ -457,51 +457,51 @@ void error_code(int err_code, char*command, char*arg1, char*arg2){
   int arg1_len = 0;
   int arg2_len = 0;
   if(err_code != 0){
-    printString(command);
-    printString(": ");
+    puts(command);
+    puts(": ");
   }
   arg1_len = strlen(arg1);
   arg2_len = strlen(arg2);
   switch (err_code)
   {
   case -1:
-    printString("Unknown Error\r\n");
+    puts("Unknown Error\r\n");
     break;
   case 1:
-    printString(arg1);
-    if(arg1_len) printString(" ");
-    printString("File not found\r\n");
+    puts(arg1);
+    if(arg1_len) puts(" ");
+    puts("File not found\r\n");
     break;
   case 2:
-    printString(arg1);
-    if(arg1_len) printString(" ");
-    printString("Is a directory\r\n");
+    puts(arg1);
+    if(arg1_len) puts(" ");
+    puts("Is a directory\r\n");
     break;
   case 3:
-    printString(arg2);
-    if(arg2_len) printString(" ");
-    printString(" File already exists\r\n");
+    puts(arg2);
+    if(arg2_len) puts(" ");
+    puts(" File already exists\r\n");
     break;
   case 4:
-    printString("Storage is full\r\n");
+    puts("Storage is full\r\n");
     break;
   case 5:
-    printString("Maximum file capacity achieved\r\n");
+    puts("Maximum file capacity achieved\r\n");
     break;
   case 6:
-    printString("Maximum sector capacity achieved\r\n");
+    puts("Maximum sector capacity achieved\r\n");
     break;
   case 7:
-    printString(arg1);
-    if(arg1_len) printString(" ");
-    printString(arg2);
-    if(arg2_len) printString(" ");
-    printString("No such directory exists\r\n");
+    puts(arg1);
+    if(arg1_len) puts(" ");
+    puts(arg2);
+    if(arg2_len) puts(" ");
+    puts("No such directory exists\r\n");
     break;
   case 8:
-    printString(arg1);
-    if(arg1_len) printString(" ");
-    printString("Folder already exists\r\n");
+    puts(arg1);
+    if(arg1_len) puts(" ");
+    puts("Folder already exists\r\n");
   default:
     break;
   }
