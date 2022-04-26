@@ -56,16 +56,16 @@ void printString(char *string) {
     }
 }
 
-void printHexa(char n)
-{
-	char number[3];
-	number[2] = 0;
-	number[0] = div(n, 16);
-	number[0] = number[0] >= 10 ? (number[0]-10) + 'A' : number[0] + '0';
-	number[1] = mod(n, 16);
-	number[1] = number[1] >= 10 ? (number[1]-10) + 'A' : number[1] + '0';
-	printString(number);
-}
+// void printHexa(char n)
+// {
+// 	char number[3];
+// 	number[2] = 0;
+// 	number[0] = div(n, 16);
+// 	number[0] = number[0] >= 10 ? (number[0]-10) + 'A' : number[0] + '0';
+// 	number[1] = mod(n, 16);
+// 	number[1] = number[1] >= 10 ? (number[1]-10) + 'A' : number[1] + '0';
+// 	printString(number);
+// }
 
 void readString(char *string) {
     bool check = true;
@@ -135,21 +135,21 @@ void fillKernelMap(){
 
 // EXECUTE PROGRAM bikin beledak karena kernel sizenya kurang
 void executeProgram(struct file_metadata *metadata, int segment) {
-  // enum fs_retcode fs_ret;
-  // byte buf[8192];
-  // int i = 0;
+  enum fs_retcode fs_ret;
+  byte buf[8192];
+  int i = 0;
 
-  // metadata->buffer = buf;
-  // read(metadata, &fs_ret);
-  // if (fs_ret == FS_SUCCESS) {
-  //   for (i = 0; i < 8192; i++) {
-  //     if (i < metadata->filesize) {
-  //       putInMemory(segment, i, metadata->buffer[i]);
-  //     } 
-  //     else putInMemory(segment, i, 0x00);
-  //   }
-  //   launchProgram(segment);
-  // }else {
-  //   printString("exec: file not found\r\n");
-  // } 
+  metadata->buffer = buf;
+  read(metadata, &fs_ret);
+  if (fs_ret == FS_SUCCESS) {
+    for (i = 0; i < 8192; i++) {
+      if (i < metadata->filesize) {
+        putInMemory(segment, i, metadata->buffer[i]);
+      } 
+      else putInMemory(segment, i, 0x00);
+    }
+    launchProgram(segment);
+  }else {
+    printString("exec: file not found\r\n");
+  } 
 }
