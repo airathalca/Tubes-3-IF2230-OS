@@ -67,7 +67,10 @@ void tc_D(byte buf[2880][512]) {
     }
 }
 
-
+void shell(byte buf[2880][512]) {
+  create_folder(buf, "bin", 0xFF);
+  insert_file(buf, "shell", 0);
+}
 
 int main(int argc, char const *argv[]) {
     if (argc < 2) {

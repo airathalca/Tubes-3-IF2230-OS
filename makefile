@@ -21,6 +21,9 @@ kernel:
 	ld86 -o out/kernel -d out/kernel.o out/kernel_asm.o out/lib_interrupt.o out/std_lib.o out/shell.o out/fileio.o out/textio.o out/string.o
 	dd if=out/kernel of=out/system.img bs=512 conv=notrunc seek=1
 
+shell:
+	
+
 run:
 	bochs -f src/config/if2230.config
 
