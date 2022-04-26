@@ -5,9 +5,9 @@
 ;This is a simple bootloader that loads and executes a kernel at sector 1
 
 	bits 16
-KSEG	equ	0x1000		;Lokasi kernel = 0x10000
-KSIZE	equ	15		;Ukuran kernel = 15 sektor
-KSTART	equ	1		;Lokasi kernel = sektor 1
+  KSEG	equ	0x1000		;Lokasi kernel = 0x10000
+  KSIZE	equ	15		;Ukuran kernel = 15 sektor
+  KSTART	equ	1		;Lokasi kernel = sektor 1
 
 	;boot loader starts at 0 in segment 0x7c00
 	org 0h

@@ -37,6 +37,8 @@ void handleInterrupt21(int AX, int BX, int CX, int DX) {
         case 0x5:
             write(BX, CX);
             break;
+        case 0x6:
+            executeProgram(BX, CX);
         default:
             printString("Invalid Interrupt");
     }
@@ -128,4 +130,26 @@ void fillKernelMap(){
     }
   }
   writeSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER); 
+}
+
+
+// EXECUTE PROGRAM bikin beledak karena kernel sizenya kurang
+void executeProgram(struct file_metadata *metadata, int segment) {
+  // enum fs_retcode fs_ret;
+  // byte buf[8192];
+  // int i = 0;
+
+  // metadata->buffer = buf;
+  // read(metadata, &fs_ret);
+  // if (fs_ret == FS_SUCCESS) {
+  //   for (i = 0; i < 8192; i++) {
+  //     if (i < metadata->filesize) {
+  //       putInMemory(segment, i, metadata->buffer[i]);
+  //     } 
+  //     else putInMemory(segment, i, 0x00);
+  //   }
+  //   launchProgram(segment);
+  // }else {
+  //   printString("exec: file not found\r\n");
+  // } 
 }
