@@ -13,5 +13,4 @@ void exit(struct message *m){
   } else {
     exec(m);
   }
-  // interrupt(0x21, 0x3, m, 0x104 + m->program_counter, 0);
 }
