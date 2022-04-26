@@ -3,6 +3,7 @@
 
 #include "std_type.h"
 
+extern int interrupt(int int_number, int AX, int BX, int CX, int DX);
 struct message
 {
   byte current_directory;
@@ -10,10 +11,11 @@ struct message
   char arg2[64];
   char arg3[64];
   int next_program_segment; // Dapat digunakan untuk bagian 3.5
+  int program_counter;
   byte other[317];
 };
 
-void getMessage(struct message *m);
-void sendMessage(struct message *m);
+void getMessage(struct message *m, int segment);
+void sendMessage(struct message *m, int segment);
 
 #endif

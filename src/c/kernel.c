@@ -43,6 +43,9 @@ void handleInterrupt21(int AX, int BX, int CX, int DX) {
         case 0x7:
             clearScreen();
             break;
+        case 0x8:
+            launchProgram(BX);
+            break;
         default:
             printString("Invalid Interrupt");
     }
@@ -298,7 +301,6 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
   return;
 }
 
-// EXECUTE PROGRAM bikin beledak karena kernel sizenya kurang
 void executeProgram(struct file_metadata *metadata, int segment) {
   enum fs_retcode fs_ret;
   byte buf[8192];
