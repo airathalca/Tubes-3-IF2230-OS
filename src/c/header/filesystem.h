@@ -1,5 +1,8 @@
 // Filesystem data structure
 
+#ifndef __FILESYSTEM__H
+#define __FILESYSTEM__H
+
 #include "std_type.h"
 
 #define FS_MAP_SECTOR_NUMBER 0x100
@@ -64,3 +67,5 @@ enum fs_retcode
   FS_W_INVALID_FOLDER = 7,
   FS_W_FOLDER_ALREADY_EXISTS = 8
 };
+
+#endif

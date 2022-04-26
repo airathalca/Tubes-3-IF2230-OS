@@ -1,9 +1,10 @@
+#ifndef __SHELL__H
+#define __SHELL__H
+
 #include "kernel.h"
 #include "textio.h"
 #include "string.h"
 
-#ifndef _SHELL_H_
-#define _SHELL_H_
 
 #define MAX_LEN 25
 

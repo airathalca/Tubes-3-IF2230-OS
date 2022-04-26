@@ -1,5 +1,8 @@
 // Kernel header
 
+#ifndef __KERNEL__H
+#define __KERNEL__H
+
 #include "std_lib.h"
 #include "filesystem.h"
 
@@ -20,3 +23,5 @@ void writeSector(byte *buffer, int sector_number);
 void readSector(byte *buffer, int sector_number);
 
 void shell();
+
+#endif

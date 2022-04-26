@@ -1,3 +1,6 @@
+#ifndef __STD_LIB__H
+#define __STD_LIB__H
+
 #include "std_type.h"
 
 // Operator matematika umum
@@ -15,3 +18,5 @@ void memcpy(byte *dest, byte *src, unsigned int n);
 
 void clear(byte *ptr, unsigned int n);
 // Mengosongkan byte array yang memiliki panjang n
+
+#endif
