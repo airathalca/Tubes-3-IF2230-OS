@@ -5,6 +5,7 @@
 #include "filesystem.h"
 #include "string.h"
 
+extern int interrupt(int int_number, int AX, int BX, int CX, int DX);
 void write(struct file_metadata *metadata, enum fs_retcode *return_code);
 void read(struct file_metadata *metadata, enum fs_retcode *return_code);
 
