@@ -19,7 +19,6 @@ void printString(char *string);
 
 void readString(char *string);
 void clearScreen();
-void welcome();
 
 void writeSector(byte *buffer, int sector_number);
 void readSector(byte *buffer, int sector_number);

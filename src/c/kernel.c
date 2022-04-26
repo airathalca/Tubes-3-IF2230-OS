@@ -7,14 +7,14 @@
 #include "header/kernel.h"
 
 int main() {
+    struct file_metadata meta;
+    
     fillKernelMap();
     clearScreen();
     makeInterrupt21();
-    welcome();
-    shell();
-}
-
-void welcome(){
+    meta.node_name = "shell";
+    meta.parent_index = 0;
+    executeProgram(&meta, 0x2000);
 }
 
 void handleInterrupt21(int AX, int BX, int CX, int DX) {
@@ -39,6 +39,10 @@ void handleInterrupt21(int AX, int BX, int CX, int DX) {
             break;
         case 0x6:
             executeProgram(BX, CX);
+            break;
+        case 0x7:
+            clearScreen();
+            break;
         default:
             printString("Invalid Interrupt");
     }

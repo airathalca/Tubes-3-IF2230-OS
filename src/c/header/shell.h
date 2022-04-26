@@ -1,16 +1,17 @@
 #ifndef __SHELL__H
 #define __SHELL__H
 
-#include "kernel.h"
 #include "textio.h"
 #include "string.h"
+#include "stdlib.h"
+#include "filesystem.h"
+#include "fileio.h"
 
 
 #define MAX_LEN 25
 
 extern int interrupt(int int_number, int AX, int BX, int CX, int DX);
 
-void shell();
 void command_type(char *command, byte *current_dir, char*arg1, char*arg2, enum fs_retcode *ret_code);
 void argSplitter(char *input_buf, char *command, char* arg1, char *arg2);
 void cd(byte *parentIndex, char *dir, enum fs_retcode *ret_code);
