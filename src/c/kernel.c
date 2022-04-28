@@ -78,6 +78,31 @@ void printHexa(char n)
 	printString(number);
 }
 
+void printInteger(int num) {
+  char tmp[32];
+  char arr[32];
+  int i;
+  int j;
+  i = 31;
+  if (num < 0) {
+    printString("-");
+    num = -num;
+  }
+  while (num > 9) {
+    tmp[i] = mod(num, 10) + 48;
+    num = div(num, 10);
+    i--;
+  }
+  tmp[i] = num + 48;
+  j = 0;
+  for (; i < 32; i++) {
+    arr[j] = tmp[i];
+    j++;
+  }
+  arr[j] = '\0';
+  printString(arr);
+}
+
 void readString(char *string) {
     bool check = true;
     char c = '\0';
@@ -330,29 +355,4 @@ void executeProgram(struct file_metadata *metadata, int segment) {
   }else {
     printString("exec: file not found\r\n");
   } 
-}
-
-void printInteger(int num) {
-  char tmp[32];
-  char arr[32];
-  int i;
-  int j;
-  i = 31;
-  if (num < 0) {
-    printString("-");
-    num = -num;
-  }
-  while (num > 9) {
-    tmp[i] = mod(num, 10) + 48;
-    num = div(num, 10);
-    i--;
-  }
-  tmp[i] = num + 48;
-  j = 0;
-  for (; i < 32; i++) {
-    arr[j] = tmp[i];
-    j++;
-  }
-  arr[j] = '\0';
-  printString(arr);
 }

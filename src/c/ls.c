@@ -17,13 +17,11 @@ int main(){
   getMessage(&m, getCurrentSegment());
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
-  puts("BABIIII");
   puts("\r\n");
   puts(m.arg1);
   puts("\r\n");
   puts(m.arg2);
   puts("\r\n");
-  puts("babiq");
   puts(m.arg3);
   puts("\r\n");
   putsHexa(m.current_directory);
