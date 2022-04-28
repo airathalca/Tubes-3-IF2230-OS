@@ -8,7 +8,6 @@
 
 int main() {
     struct file_metadata meta;
-    
     fillKernelMap();
     clearScreen();
     makeInterrupt21();

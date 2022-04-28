@@ -35,7 +35,6 @@ void command_type(char *command, byte *current_dir, char* arg1, char* arg2, enum
 
   else if (strcmp(command, "ls")) {
     puts("\r\n");
-    puts("NGEW#EE");
     ls(*current_dir, arg1, &ret_code);
   } 
 

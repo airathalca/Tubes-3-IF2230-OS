@@ -11,9 +11,10 @@ struct message
   char arg2[64];
   char arg3[64];
   int next_program_segment; // Dapat digunakan untuk bagian 3.5
-  int program_counter;
-  byte other[317];
+
+  byte other[315];
 };
+
 
 void getMessage(struct message *m, int segment);
 void sendMessage(struct message *m, int segment);

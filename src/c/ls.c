@@ -4,3 +4,10 @@
 #include "header/fileio.h"
 #include "header/program.h"
 #include "header/utils.h"
+#include "header/message.h"
+
+int main(){
+  struct message m;
+  getMessage(&m);
+  
+}
