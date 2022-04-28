@@ -145,6 +145,7 @@ void fillKernelMap(){
 
 void initialMessage(){
   struct message m;
+  strcpy(m.arg1, "shell");
   m.current_directory = 0xFF;
   sendMessage(&m, 0x2000);
 }

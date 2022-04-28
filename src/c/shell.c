@@ -8,18 +8,20 @@ int main() {
   char arg2[64];
   enum fs_retcode ret_code = 0;
   byte current_dir = FS_NODE_P_IDX_ROOT;
-  struct message now;
-  getMessage(&now, getCurrentSegment());
+  struct message next;
+
+  getMessage(&next, getCurrentSegment());
   putsHexa(getCurrentSegment());
   puts("\r\n");
   putsHexa(current_dir);
   puts("\r\n");
-  current_dir = now.current_directory;
+  current_dir = next.current_directory;
   putsHexa(current_dir);
   puts("\r\n");
-  strcpy(now.arg1, "ls");
-  strcpy(now.arg2, "test123");
-  strcpy(now.arg3, "geming");
+  strcpy(next.arg1, "ls");
+  strcpy(next.arg2, "test123");
+  strcpy(next.arg3, "geming");
+  next.next_program_segment = 0x2000;
   
   while (true) {
     clear(input_buf, 128);
@@ -30,7 +32,8 @@ int main() {
     printCWD(path_str, current_dir);
     puts("$ ");
     gets(input_buf);
-    exec(&now, getCurrentSegment() + 0x1000);
+    sendMessage(&next, 0x3000);
+    exec(&next, getCurrentSegment() + 0x1000);
     // argSplitter(&input_buf, &command, &arg1, &arg2);
     // command_type(&command, &current_dir, &arg1, &arg2, &ret_code);
   }
