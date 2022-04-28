@@ -8,6 +8,6 @@
 extern int interrupt(int int_number, int AX, int BX, int CX, int DX);
 
 void exec(struct message *m, int segment);
-void exit(struct message *m);
+void exit();
 
 #endif

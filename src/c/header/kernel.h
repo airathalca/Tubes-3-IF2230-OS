@@ -5,6 +5,7 @@
 
 #include "std_lib.h"
 #include "filesystem.h"
+#include "message.h"
 
 extern void putInMemory(int segment, int address, char character);
 extern int interrupt(int int_number, int AX, int BX, int CX, int DX);
@@ -13,9 +14,11 @@ extern void launchProgram(int segment);
 void makeInterrupt21();
 void handleInterrupt21(int AX, int BX, int CX, int DX);
 void fillKernelMap();
+void initialMessage();
 
 void printString(char *string);
-// void printHexa(char n);
+void printHexa(char n);
+void printInteger(int num);
 
 void readString(char *string);
 void clearScreen();

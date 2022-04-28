@@ -6,7 +6,9 @@
 #include "stdlib.h"
 #include "filesystem.h"
 #include "fileio.h"
-
+#include "message.h"
+#include "utils.h"
+#include "program.h"
 
 #define MAX_LEN 25
 

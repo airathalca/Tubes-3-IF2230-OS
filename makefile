@@ -1,5 +1,5 @@
 # Makefile
-all: diskimage bootloader kernel
+all: diskimage bootloader kernel shell ls
 
 # Recipes
 diskimage:
@@ -15,9 +15,11 @@ kernel:
 	bcc -ansi -c -o out/fileio.o src/c/fileio.c
 	bcc -ansi -c -o out/textio.o src/c/textio.c
 	bcc -ansi -c -o out/string.o src/c/string.c
+	bcc -ansi -c -o out/message.o src/c/message.c
 	nasm -f as86 src/asm/kernel.asm -o out/kernel_asm.o
 	nasm -f as86 src/asm/interrupt.asm -o out/lib_interrupt.o
-	ld86 -o out/kernel -d out/kernel.o out/kernel_asm.o out/lib_interrupt.o out/std_lib.o out/fileio.o out/textio.o out/string.o
+	nasm -f as86 src/asm/utils.asm -o out/lib_utils.o
+	ld86 -o out/kernel -d out/kernel.o out/kernel_asm.o out/lib_interrupt.o out/lib_utils.o out/std_lib.o out/fileio.o out/textio.o out/string.o out/message.o
 	dd if=out/kernel of=out/system.img bs=512 conv=notrunc seek=1
 
 shell:
@@ -26,8 +28,23 @@ shell:
 	bcc -ansi -c -o out/fileio.o src/c/fileio.c
 	bcc -ansi -c -o out/string.o src/c/string.c
 	bcc -ansi -c -o out/std_lib.o src/c/std_lib.c
+	bcc -ansi -c -o out/message.o src/c/message.c
+	bcc -ansi -c -o out/program.o src/c/program.c
 	nasm -f as86 src/asm/interrupt.asm -o out/lib_interrupt.o
-	ld86 -o out/shell -d out/shell.o out/lib_interrupt.o out/std_lib.o out/fileio.o out/textio.o out/string.o
+	nasm -f as86 src/asm/utils.asm -o out/lib_utils.o
+	ld86 -o out/shell -d out/shell.o out/lib_interrupt.o out/lib_utils.o out/std_lib.o out/fileio.o out/textio.o out/string.o out/message.o out/program.o
+
+ls:
+	bcc -ansi -c -o out/ls.o src/c/ls.c
+	bcc -ansi -c -o out/textio.o src/c/textio.c
+	bcc -ansi -c -o out/fileio.o src/c/fileio.c
+	bcc -ansi -c -o out/string.o src/c/string.c
+	bcc -ansi -c -o out/std_lib.o src/c/std_lib.c
+	bcc -ansi -c -o out/message.o src/c/message.c
+	bcc -ansi -c -o out/program.o src/c/program.c
+	nasm -f as86 src/asm/interrupt.asm -o out/lib_interrupt.o
+	nasm -f as86 src/asm/utils.asm -o out/lib_utils.o
+	ld86 -o out/ls -d out/ls.o out/lib_interrupt.o out/lib_utils.o out/std_lib.o out/fileio.o out/textio.o out/string.o out/message.o out/program.o
 	
 run:
 	bochs -f src/config/if2230.config

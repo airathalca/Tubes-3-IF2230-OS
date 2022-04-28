@@ -3,23 +3,36 @@
 int main() {
   char input_buf[128];
   char path_str[128];
-  char command[32];
-  char arg1[32];
-  char arg2[32];
+  char command[64];
+  char arg1[64];
+  char arg2[64];
   enum fs_retcode ret_code = 0;
   byte current_dir = FS_NODE_P_IDX_ROOT;
-
+  struct message now;
+  getMessage(&now, getCurrentSegment());
+  putsHexa(getCurrentSegment());
+  puts("\r\n");
+  putsHexa(current_dir);
+  puts("\r\n");
+  current_dir = now.current_directory;
+  putsHexa(current_dir);
+  puts("\r\n");
+  strcpy(now.arg1, "ls");
+  strcpy(now.arg2, "test123");
+  strcpy(now.arg3, "geming");
+  
   while (true) {
     clear(input_buf, 128);
-    clear(arg1, 32);
-    clear(arg2, 32);
-    clear(command, 32);
+    clear(arg1, 64);
+    clear(arg2, 64);
+    clear(command, 64);
     puts("user@uSUSbuntuOS:");
     printCWD(path_str, current_dir);
     puts("$ ");
     gets(input_buf);
-    argSplitter(&input_buf, &command, &arg1, &arg2);
-    command_type(&command, &current_dir, &arg1, &arg2, &ret_code);
+    exec(&now, getCurrentSegment() + 0x1000);
+    // argSplitter(&input_buf, &command, &arg1, &arg2);
+    // command_type(&command, &current_dir, &arg1, &arg2, &ret_code);
   }
 }
 
@@ -102,10 +115,8 @@ void cd(byte *parentIndex, char *dir, enum fs_retcode *ret_code) {
   int i;
   int cur_idx = *parentIndex;
 
-  interrupt(0x21, 0x2, &(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER, 0);
-  interrupt(0x21, 0x2, &(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1, 0);
-  // readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
-	// readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
+  readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
+	readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
   
   // kalo gaada dir nya
   if(dir[0] == '\0'){
@@ -125,10 +136,8 @@ void ls(byte parentIdx, char* arg1, enum fs_retcode *ret_code) {
   int i = 0;
   byte parentFound = FS_NODE_P_IDX_ROOT;
 
-  interrupt(0x21, 0x2, &(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER, 0);
-  interrupt(0x21, 0x2, &(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1, 0);
-  // readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
-  // readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
+  readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
+  readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
 
   if(arg1[0] == '\0'){
     while (i < 64) {
@@ -177,10 +186,8 @@ void mv(byte parentIndex, char *source, char *target, enum fs_retcode *ret_code)
     return;
   }
   clear(buffer, 8192);
-  interrupt(0x21, 0x2, &(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER, 0);
-  interrupt(0x21, 0x2, &(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1, 0);
-  // readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
-  // readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
+  readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
+  readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
   for(i = 0; i < 64; i++){
     if(node_fs_buffer.nodes[i].parent_node_index == parentIndex && strcmp(node_fs_buffer.nodes[i].name, source)){
       break;
@@ -303,11 +310,9 @@ void cp(byte parentIdx, char *resourcePath, char *destinationPath, enum fs_retco
   struct file_metadata *fileInfo;
   int i;
   clear(buffer, 8192);
-  
-  interrupt(0x21, 0x2, &(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER, 0);
-  interrupt(0x21, 0x2, &(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1, 0);
-  // readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
-  // readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
+
+  readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
+  readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
   memcpy(fileInfo->buffer, buffer, 8192);
   strcpy(fileInfo->node_name, resourcePath);
   fileInfo->parent_index = parentIdx;
@@ -348,12 +353,9 @@ void printCWD(char* path_str, byte current_dir) {
   struct node_filesystem node_fs_buffer;
   struct sector_filesystem sector_fs_buffer;
 
-  interrupt(0x21, 0x2, &(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER, 0);
-  interrupt(0x21, 0x2, &(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1, 0);
-  interrupt(0x21, 0x2, &sector_fs_buffer, FS_SECTOR_SECTOR_NUMBER, 0);
-  // readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER);
-  // readSector(&node_fs_buffer.nodes[32], FS_NODE_SECTOR_NUMBER + 1);
-  // readSector(&sector_fs_buffer, FS_SECTOR_SECTOR_NUMBER);
+  readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER);
+  readSector(&node_fs_buffer.nodes[32], FS_NODE_SECTOR_NUMBER + 1);
+  readSector(&sector_fs_buffer, FS_SECTOR_SECTOR_NUMBER);
 
   //kosongin dulu
   clear(path_str, 128);
@@ -412,12 +414,8 @@ byte read_relative_path(byte parentIdx, char *path_str, enum fs_retcode *ret_cod
   bool found = false;
   byte prevParentIndex = parentIdx;
 
-
-
-  interrupt(0x21, 0x2, &(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER, 0);
-  interrupt(0x21, 0x2, &(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1, 0);
-  // readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
-	// readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
+  readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
+	readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
   clear(temp_str, 128);
 
   while (path_str[i] != '\0') {
