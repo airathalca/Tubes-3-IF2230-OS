@@ -208,6 +208,7 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
     *return_code = FS_R_TYPE_IS_FOLDER;
     return;
   }
+
   memcpy(&sector_entry_buffer, &sector_fs_buffer.sector_list[node_fs_buffer.nodes[foundEntryNode].sector_entry_index], 16);
   for(j = 0; j < 16; j++){
     if(sector_entry_buffer.sector_numbers[j] != '\0'){
@@ -248,11 +249,13 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
     }
     i++;
   }
+
   if (found) {
     if(isFile) *return_code = FS_W_FILE_ALREADY_EXIST;
     else *return_code = FS_W_FOLDER_ALREADY_EXISTS;
     return;
   }
+
   if (strlen(metadata->node_name) > 13) {
     *return_code = FS_W_NOT_ENOUGH_STORAGE;
     return;

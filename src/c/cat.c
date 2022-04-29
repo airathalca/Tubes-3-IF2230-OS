@@ -14,6 +14,11 @@ int main(){
 
   getMessage(&m, getCurrentSegment());
 
+  if (!checkArgs(m.arg2, &ret_code)) {
+    sendMessage(&m, getCurrentSegment());
+    exit();
+  }
+
   fileinfo.parent_index = m.current_directory;
   fileinfo.buffer = buffer;
   strcpy(fileinfo.node_name, m.arg2);
