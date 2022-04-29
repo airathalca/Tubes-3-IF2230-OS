@@ -57,6 +57,7 @@ int main(){
 
   if (i == 64) {
     ret_code = FS_W_INVALID_FOLDER;
+    error_code(ret_code, m.arg1, m.arg2, m.arg3);
     exit();
   }
 

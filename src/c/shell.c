@@ -22,7 +22,7 @@ int main() {
   clear(next.arg2, 64);
   clear(next.arg3, 64);
   strcpy(next.arg1, "ls");
-  strcpy(next.arg2, "bin");
+  strcpy(next.arg2, "binasdf");
   strcpy(next.arg3, "geming");
   next.next_program_segment = 0x2000;
   
@@ -136,50 +136,6 @@ int main() {
 //   } else {
 //     *parentIndex = read_relative_path(*parentIndex, dir, ret_code);
 //   }
-// }
-
-// void ls(byte parentIdx, char* arg1, enum fs_retcode *ret_code) {
-//   struct node_filesystem node_fs_buffer;
-//   int i = 0;
-//   byte parentFound = FS_NODE_P_IDX_ROOT;
-
-//   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
-//   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
-
-//   if(arg1[0] == '\0'){
-//     while (i < 64) {
-//       if (strlen(node_fs_buffer.nodes[i].name) > 0 && node_fs_buffer.nodes[i].parent_node_index == parentIdx) {
-//         puts(node_fs_buffer.nodes[i].name);
-//         puts("\r\n");
-//       }
-//       i++;
-//     }
-//     *ret_code = FS_SUCCESS;
-//     return;
-//   }
-//   //kalo arg1 nya ga nol berarti ini nyari dulu node yg namanya sama
-//   for(i = 0; i < 64; i++) {
-//     if (strlen(node_fs_buffer.nodes[i].name) > 0 && strcmp(node_fs_buffer.nodes[i].name, arg1) && node_fs_buffer.nodes[i].parent_node_index == parentIdx){
-//       parentFound = i;
-//       break;
-//     }
-//   }
-
-//   if(i == 64){
-//     *ret_code = FS_W_INVALID_FOLDER;
-//     return;
-//   }
-
-//   //cari lagi sesuai parent idx yang baru
-//   for (i = 0; i < 64; i++) {
-//     if (strlen(node_fs_buffer.nodes[i].name) > 0 && node_fs_buffer.nodes[i].parent_node_index == parentFound){
-//       puts(node_fs_buffer.nodes[i].name);
-//       puts("\r\n");
-//     }
-//   }
-
-//   *ret_code = FS_SUCCESS;
-//   return;
 // }
 
 // void mv(byte parentIndex, char *source, char *target, enum fs_retcode *ret_code) {
