@@ -41,7 +41,6 @@ ls:
 	bcc -ansi -c -o out/textio.o src/c/textio.c
 	bcc -ansi -c -o out/fileio.o src/c/fileio.c
 	bcc -ansi -c -o out/string.o src/c/string.c
-	bcc -ansi -c -o out/std_lib.o src/c/std_lib.c
 	bcc -ansi -c -o out/message.o src/c/message.c
 	bcc -ansi -c -o out/program.o src/c/program.c
 	nasm -f as86 src/asm/utils.asm -o out/lib_utils.o
@@ -52,7 +51,6 @@ cat:
 	bcc -ansi -c -o out/textio.o src/c/textio.c
 	bcc -ansi -c -o out/fileio.o src/c/fileio.c
 	bcc -ansi -c -o out/string.o src/c/string.c
-	bcc -ansi -c -o out/std_lib.o src/c/std_lib.c
 	bcc -ansi -c -o out/message.o src/c/message.c
 	bcc -ansi -c -o out/program.o src/c/program.c
 	nasm -f as86 src/asm/utils.asm -o out/lib_utils.o
@@ -63,7 +61,6 @@ mkdir:
 	bcc -ansi -c -o out/textio.o src/c/textio.c
 	bcc -ansi -c -o out/fileio.o src/c/fileio.c
 	bcc -ansi -c -o out/string.o src/c/string.c
-	bcc -ansi -c -o out/std_lib.o src/c/std_lib.c
 	bcc -ansi -c -o out/message.o src/c/message.c
 	bcc -ansi -c -o out/program.o src/c/program.c
 	nasm -f as86 src/asm/utils.asm -o out/lib_utils.o

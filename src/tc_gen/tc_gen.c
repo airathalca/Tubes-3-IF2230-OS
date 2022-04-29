@@ -70,6 +70,9 @@ void tc_D(byte buf[2880][512]) {
 void shell(byte buf[2880][512]) {
   create_folder(buf, "bin", 0xFF);
   insert_file(buf, "shell", 0);
+  insert_file(buf, "ls", 0);
+  insert_file(buf, "cat", 0);
+  insert_file(buf, "mkdir", 0);
   insert_file(buf, "file_src/tc_b/file_idx_0", 0);
   insert_file(buf, "file_src/tc_d/512", 0);
   insert_file(buf, "file_src/tc_d/1024", 0);

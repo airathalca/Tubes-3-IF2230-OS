@@ -17,23 +17,8 @@ int main(){
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
   getMessage(&m, getCurrentSegment());
-  // puts("\r\n");
-  // puts(m.arg1);
-  // puts("\r\n");
-  // puts(m.arg2);
-  // puts("\r\n");
-  // puts(m.arg3);
-  // puts("\r\n");
-  // putsHexa(m.current_directory);
-  // puts("\r\n");
-  // putsHexa(getCurrentSegment());
-  // puts("\r\n");
-  // putsHexa(m.next_program_segment);
-  // puts("\r\n");
-  // puts(m.other);
-  // puts("\r\n");
+
   sendMessage(&m, getCurrentSegment());
-  // exit();
 
   if(m.arg2[0] == '\0') {
     while (i < 64) {
