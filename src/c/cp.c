@@ -13,6 +13,8 @@ int main() {
     enum fs_retcode ret_code;
     int i;
 
+    clear(buffer, 8192);
+
     readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
     readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
 
