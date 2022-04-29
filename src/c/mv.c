@@ -33,7 +33,7 @@ int main() {
     exit();
   }
 
-  fileinfo.buffer = buffer;
+  clear(buffer, 8192);
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
 
@@ -51,6 +51,7 @@ int main() {
   }
 
   // if file found move it to fileinfo
+  memcpy(fileinfo.buffer,buffer,8192);
   strcpy(fileinfo.node_name, m.arg2);
   fileinfo.parent_index = m.current_directory;
 
@@ -125,7 +126,7 @@ int main() {
     exit();
   }
 
-  fileinfo.parent_index = nodeFound;
+  fileinfo.parent_index = dir;
   node_fs_buffer.nodes[nodeFound].parent_node_index = dir;
   strcpy(node_fs_buffer.nodes[nodeFound].name, fileinfo.node_name);
   writeSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
