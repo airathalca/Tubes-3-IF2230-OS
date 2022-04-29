@@ -11,7 +11,6 @@ int main(){
   struct message m;
   struct file_metadata fileinfo;
   char buffer[8192];
-  int i = 0;
   enum fs_retcode ret_code;
 
   getMessage(&m, getCurrentSegment());

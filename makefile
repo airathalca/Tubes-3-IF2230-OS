@@ -34,7 +34,7 @@ shell:
 	nasm -f as86 src/asm/utils.asm -o out/lib_utils.o
 	ld86 -o out/shell -d out/shell.o out/lib_interrupt.o out/lib_utils.o out/std_lib.o out/fileio.o out/textio.o out/string.o out/message.o out/program.o
 
-utils: ls cat mkdir mv cd
+utils: ls cat mkdir mv cd cp
 
 ls:
 	bcc -ansi -c -o out/ls.o src/c/ls.c
@@ -77,6 +77,7 @@ cd:
 	nasm -f as86 src/asm/utils.asm -o out/lib_utils.o
 	ld86 -o out/cd -d out/cd.o out/lib_interrupt.o out/lib_utils.o out/std_lib.o out/fileio.o out/textio.o out/string.o out/message.o out/program.o
 
+<<<<<<< Updated upstream
 mv:
 	bcc -ansi -c -o out/mv.o src/c/mv.c
 	bcc -ansi -c -o out/textio.o src/c/textio.c
@@ -86,6 +87,18 @@ mv:
 	bcc -ansi -c -o out/program.o src/c/program.c
 	nasm -f as86 src/asm/utils.asm -o out/lib_utils.o
 	ld86 -o out/mv -d out/mv.o out/lib_interrupt.o out/lib_utils.o out/std_lib.o out/fileio.o out/textio.o out/string.o out/message.o out/program.o
+=======
+cp:
+	bcc -ansi -c -o out/cp.o src/c/cp.c
+	bcc -ansi -c -o out/textio.o src/c/textio.c
+	bcc -ansi -c -o out/fileio.o src/c/fileio.c
+	bcc -ansi -c -o out/string.o src/c/string.c
+	bcc -ansi -c -o out/std_lib.o src/c/std_lib.c
+	bcc -ansi -c -o out/message.o src/c/message.c
+	bcc -ansi -c -o out/program.o src/c/program.c
+	nasm -f as86 src/asm/utils.asm -o out/lib_utils.o
+	ld86 -o out/cp -d out/cp.o out/lib_interrupt.o out/lib_utils.o out/std_lib.o out/fileio.o out/textio.o out/string.o out/message.o out/program.o
+>>>>>>> Stashed changes
 
 run:
 	bochs -f src/config/if2230.config

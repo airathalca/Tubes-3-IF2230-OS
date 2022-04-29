@@ -8,19 +8,12 @@
 int main() {
   struct message m;
   struct node_filesystem node_fs_buffer;
-  int i;
   enum fs_retcode ret_code;
 
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
 
   getMessage(&m, getCurrentSegment());
-  puts(m.arg1);
-  puts("\r\n");
-  puts(m.arg2);
-  puts("\r\n");
-
-  puts("TEST\r\n");
 
   if (m.arg2[0] == '\0') {
     ret_code = FS_R_NODE_NOT_FOUND;
@@ -44,16 +37,3 @@ int main() {
   sendMessage(&m, getCurrentSegment());
   exit();
 }
-
-// void cd(byte *parentIndex, char *dir, enum fs_retcode *ret_code) {  
-//   if(dir[0] == '\0'){
-//     *ret_code = FS_R_NODE_NOT_FOUND;
-//     return;
-//   } else if(dir[0] == '/'){
-//     *parentIndex = read_relative_path(FS_NODE_P_IDX_ROOT, dir + 1, ret_code);
-//     return;
-
-//   } else {
-//     *parentIndex = read_relative_path(*parentIndex, dir, ret_code);
-//   }
-// }
