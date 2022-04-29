@@ -1,6 +1,5 @@
 #include "header/std_lib.h"
 
-// Opsional : Tambahkan implementasi kode C
 int div (int a, int b) {
   int res = 0;
   while (a>=b) {
