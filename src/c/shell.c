@@ -80,42 +80,44 @@ int main() {
 //   error_code(ret_code, command, arg1, arg2);
 // }
 
-// void argSplitter(char *input_buf, char *command, char* arg1, char *arg2){
-//   int size;
-//   int i = 0;
-//   int now = 0;
-//   int k;
-//   int count = 0;
+void argSplitter(char *input_buf, char *command, char* arg1, char *arg2){
+  int size;
+  int i = 0;
+  int now = 0;
+  int k;
+  int count = 0;
   
-//   while(input_buf[i] != '\0') {
-//     if(count == 0){
-//       k = 0;
-//       while(input_buf[i] != ' ' && input_buf[i] != '\0'){
-//         command[k] = input_buf[i];
-//         k++;
-//         i++;
-//       }
-//       count++;
-//     }else if(count == 1){
-//       k = 0;
-//       while(input_buf[i] != ' ' && input_buf[i] != '\0'){
-//         arg1[k] = input_buf[i];
-//         k++;
-//         i++;
-//       }
-//       count++;
-//     }else if(count == 2){
-//       k = 0;
-//       while(input_buf[i] != ' ' && input_buf[i] != '\0'){
-//         arg2[k] = input_buf[i];
-//         k++;
-//         i++;
-//       }
-//       count++;
-//     }
-//     i++;
-//   }
-// }
+  while(input_buf[i] != '\0') {
+    if(count == 0){
+      k = 0;
+      while(input_buf[i] != ' ' && input_buf[i] != '\0'){
+        command[k] = input_buf[i];
+        k++;
+        i++;
+      }
+      count++;
+    }else if(count == 1){
+      k = 0;
+      while(input_buf[i] != ' ' && input_buf[i] != '\0'){
+        arg1[k] = input_buf[i];
+        k++;
+        i++;
+      }
+      count++;
+    }else if(count == 2){
+      k = 0;
+      while(input_buf[i] != ' ' && input_buf[i] != '\0'){
+        arg2[k] = input_buf[i];
+        k++;
+        i++;
+      }
+      count++;
+    }
+    if(input_buf[i] == ' ') {
+      //error;
+    }
+  }
+}
 
 // void cd(byte *parentIndex, char *dir, enum fs_retcode *ret_code) {
 //   struct node_filesystem node_fs_buffer;
