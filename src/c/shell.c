@@ -18,8 +18,11 @@ int main() {
   // puts("\r\n");
   // putsHexa(current_dir);
   // puts("\r\n");
+  clear(next.arg1, 64);
+  clear(next.arg2, 64);
+  clear(next.arg3, 64);
   strcpy(next.arg1, "ls");
-  strcpy(next.arg2, "test123");
+  strcpy(next.arg2, "bin");
   strcpy(next.arg3, "geming");
   next.next_program_segment = 0x2000;
   
@@ -32,6 +35,7 @@ int main() {
     printCWD(path_str, current_dir);
     puts("$ ");
     gets(input_buf);
+    puts("\r\n");
     sendMessage(&next, 0x3000);
     exec(&next, getCurrentSegment() + 0x1000);
     // argSplitter(&input_buf, &command, &arg1, &arg2);
