@@ -1,6 +1,6 @@
 # uSUSbuntu OS
 
-This project is made to fulfill the 1st milestone for the Operating System. It is a simple os that can print a string and read the string from keyboard you pressed, it also can clear the screen and change the cursor position back to left corner.
+This project is made to fulfill the 1st, 2nd, and 3rd milestone for the Operating System. It is a simple os that can do simple command like ls, mkdir, cp, cd, cat, and mv. It also implemented by using multiprogramming and message passing
 
 ## Made by
 
@@ -28,6 +28,16 @@ This project is made to fulfill the 1st milestone for the Operating System. It i
 ## Features
 
 This OS was in implementation from the boilerplate given by sister19. In this OS you can use simple command like `cat` to read file, `ls` to list file and many more. To see more command check the command section. This OS is made using bcc, bochs, c, and asm. 
+
+## Program Features
+1. Kernel
+2. Shell
+4. cd
+5. cp
+6. cat
+7. ls
+8. mv
+9. mkdir
 
 ## Setup
 
@@ -66,3 +76,4 @@ sudo apt install nasm bcc bin86 bochs bochs-x make
 2. [Bios and Dos](https://jbwyatt.com/253/emu/8086_bios_and_dos_interrupts.html)
 3. [Milestone1 Doc](https://docs.google.com/document/d/1x9g3kspefka_vBl8JseBROv8f7cQdfEq-59W0jOqmo4/edit#)
 4. [Milestone2 Doc](https://docs.google.com/document/d/12b8gwm5RZyFfdXUKDzauFuJMtFQ2QCcKEqiJBa7sORU/edit#)
+5. [Milestone3 Doc](https://docs.google.com/document/d/1-ofSIjvQA089TuUklTesTLeBeCW_4HJiJOdDCAicop8/edit?pli=1#)
