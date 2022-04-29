@@ -34,7 +34,7 @@ shell:
 	nasm -f as86 src/asm/utils.asm -o out/lib_utils.o
 	ld86 -o out/shell -d out/shell.o out/lib_interrupt.o out/lib_utils.o out/std_lib.o out/fileio.o out/textio.o out/string.o out/message.o out/program.o
 
-utils: ls cat mkdir mv
+utils: ls cat mkdir mv cd
 
 ls:
 	bcc -ansi -c -o out/ls.o src/c/ls.c
@@ -65,6 +65,17 @@ mkdir:
 	bcc -ansi -c -o out/program.o src/c/program.c
 	nasm -f as86 src/asm/utils.asm -o out/lib_utils.o
 	ld86 -o out/mkdir -d out/mkdir.o out/lib_interrupt.o out/lib_utils.o out/std_lib.o out/fileio.o out/textio.o out/string.o out/message.o out/program.o
+
+cd:
+	bcc -ansi -c -o out/cd.o src/c/cd.c
+	bcc -ansi -c -o out/textio.o src/c/textio.c
+	bcc -ansi -c -o out/fileio.o src/c/fileio.c
+	bcc -ansi -c -o out/string.o src/c/string.c
+	bcc -ansi -c -o out/std_lib.o src/c/std_lib.c
+	bcc -ansi -c -o out/message.o src/c/message.c
+	bcc -ansi -c -o out/program.o src/c/program.c
+	nasm -f as86 src/asm/utils.asm -o out/lib_utils.o
+	ld86 -o out/cd -d out/cd.o out/lib_interrupt.o out/lib_utils.o out/std_lib.o out/fileio.o out/textio.o out/string.o out/message.o out/program.o
 
 mv:
 	bcc -ansi -c -o out/mv.o src/c/mv.c
