@@ -1,7 +1,7 @@
 #include "header/shell.h"
 
 int main() {
-  char input_buf[128];
+  char *input_buf[8];
   char path_str[128];
   char command[64];
   char arg1[64];
