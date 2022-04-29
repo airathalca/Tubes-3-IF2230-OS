@@ -12,8 +12,6 @@ typedef unsigned char byte;
 extern void insert_file(byte buf[2880][512], char *fname, byte parent_idx);
 extern void create_folder(byte buf[2880][512], char *fname, byte parent_idx);
 
-
-
 void tc_A(byte buf[2880][512]) {
     create_folder(buf, "folder1", 0xFF);
     create_folder(buf, "folder2", 0);
@@ -73,6 +71,7 @@ void shell(byte buf[2880][512]) {
   insert_file(buf, "ls", 0);
   insert_file(buf, "cat", 0);
   insert_file(buf, "mkdir", 0);
+  insert_file(buf, "cd", 0);
   insert_file(buf, "file_src/tc_b/file_idx_0", 0);
   insert_file(buf, "file_src/tc_d/512", 0);
   insert_file(buf, "file_src/tc_d/1024", 0);
