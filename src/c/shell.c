@@ -38,6 +38,7 @@ int main() {
     puts("$ ");
     gets(input_buf);
     commandcount = strparsing(input_buf,input_split);
+    //TODO = coba cek input_splitnya udah bener ga (belom di argsplitter), commandcount = banyaknya command dari input buf udah dipindahin ke input split
     puts("\r\n");
     sendMessage(&next, 0x3000);
     exec(&next, getCurrentSegment() + 0x1000);
