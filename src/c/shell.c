@@ -21,8 +21,8 @@ int main() {
   clear(next.arg1, 64);
   clear(next.arg2, 64);
   clear(next.arg3, 64);
-  strcpy(next.arg1, "ls");
-  strcpy(next.arg2, "binasdf");
+  strcpy(next.arg1, "cat");
+  strcpy(next.arg2, "file_idx_0");
   strcpy(next.arg3, "geming");
   next.next_program_segment = 0x2000;
   
@@ -237,24 +237,6 @@ int main() {
 //   return true;
 // }
 
-// void cat(byte parentIndex, char *filename, enum fs_retcode *ret_code) {
-//   //diketahui parentIndexnya trs tinggal searching node mana yang p nya sama 
-//   // berarti itu ada di folder tsb cek namanya sama apa ga
-//   struct file_metadata *fileInfo;
-//   int i = 0;
-//   if (!checkArgs(filename,ret_code)) {
-//     return;
-//   }
-//   fileInfo->parent_index = parentIndex;
-//   strcpy(fileInfo->node_name, filename);
-
-//   read(fileInfo, ret_code);
-//   if(*ret_code == 0){
-//     puts(fileInfo->buffer);
-//     puts("\r\n");
-//   }
-// }
-
 // void mkdir(byte cur_dir_idx, char *arg1, enum fs_retcode *ret_code){
 //   //cek dulu apakah ada folder yang namanya sama
 //   struct file_metadata *fileinfo;
@@ -432,57 +414,3 @@ byte read_relative_path(byte parentIdx, char *path_str, enum fs_retcode *ret_cod
   *ret_code = FS_SUCCESS;
   return parentIdx;
 }
-
-// void error_code(int err_code, char*command, char*arg1, char*arg2){
-//   int arg1_len = 0;
-//   int arg2_len = 0;
-//   if(err_code != 0){
-//     puts(command);
-//     puts(": ");
-//   }
-//   arg1_len = strlen(arg1);
-//   arg2_len = strlen(arg2);
-//   switch (err_code)
-//   {
-//   case -1:
-//     puts("Unknown Error\r\n");
-//     break;
-//   case 1:
-//     puts(arg1);
-//     if(arg1_len) puts(" ");
-//     puts("File not found\r\n");
-//     break;
-//   case 2:
-//     puts(arg1);
-//     if(arg1_len) puts(" ");
-//     puts("Is a directory\r\n");
-//     break;
-//   case 3:
-//     puts(arg2);
-//     if(arg2_len) puts(" ");
-//     puts(" File already exists\r\n");
-//     break;
-//   case 4:
-//     puts("Storage is full\r\n");
-//     break;
-//   case 5:
-//     puts("Maximum file capacity achieved\r\n");
-//     break;
-//   case 6:
-//     puts("Maximum sector capacity achieved\r\n");
-//     break;
-//   case 7:
-//     puts(arg1);
-//     if(arg1_len) puts(" ");
-//     puts(arg2);
-//     if(arg2_len) puts(" ");
-//     puts("No such directory exists\r\n");
-//     break;
-//   case 8:
-//     puts(arg1);
-//     if(arg1_len) puts(" ");
-//     puts("Folder already exists\r\n");
-//   default:
-//     break;
-//   }
-// }

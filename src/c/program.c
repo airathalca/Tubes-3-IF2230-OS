@@ -19,9 +19,10 @@ void exit(){
   sendMessage(&next, now.next_program_segment);
   
   // puts("MENUJU: ");
-  // putsHexa(now.next_program_segment);
+  // putsHexa(next.next_program_segment);
   // puts("\r\n");
   // puts(next.arg1);
+  // puts("\r\n");
   exec(&next, now.next_program_segment);
 };
 
