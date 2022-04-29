@@ -14,9 +14,9 @@ int main(){
   byte parentFound = FS_NODE_P_IDX_ROOT;
   enum fs_retcode ret_code;
 
-  getMessage(&m, getCurrentSegment());
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
+  getMessage(&m, getCurrentSegment());
   puts("\r\n");
   puts(m.arg1);
   puts("\r\n");
