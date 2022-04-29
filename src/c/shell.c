@@ -21,8 +21,8 @@ int main() {
   clear(next.arg1, 64);
   clear(next.arg2, 64);
   clear(next.arg3, 64);
-  strcpy(next.arg1, "cat");
-  strcpy(next.arg2, "file_idx_0");
+  strcpy(next.arg1, "mkdir");
+  strcpy(next.arg2, "test123");
   strcpy(next.arg3, "geming");
   next.next_program_segment = 0x2000;
   

@@ -26,6 +26,18 @@ void exit(){
   exec(&next, now.next_program_segment);
 };
 
+bool checkArgs(char *filename, int *ret_code) {
+  if(filename[0] == '\0'){
+      *ret_code = FS_R_NODE_NOT_FOUND;
+      return false;
+    }
+  if(strlen(filename) > 13){
+    *ret_code = FS_W_NOT_ENOUGH_STORAGE;
+    return false;
+  }
+  return true;
+}
+
 void error_code(int err_code, char*command, char*arg1, char*arg2){
   int arg1_len = 0;
   int arg2_len = 0;
