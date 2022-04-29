@@ -1,12 +1,14 @@
 #include "header/shell.h"
 
 int main() {
-  char *input_buf[8];
+  char *input_split[8];
+  char input_buf[128];
   char path_str[128];
   char command[64];
   char arg1[64];
   char arg2[64];
   enum fs_retcode ret_code = 0;
+  int commandcount = 0;
   byte current_dir = FS_NODE_P_IDX_ROOT;
   struct message next;
 
@@ -35,6 +37,7 @@ int main() {
     printCWD(path_str, current_dir);
     puts("$ ");
     gets(input_buf);
+    commandcount = strparsing(input_buf,input_split);
     puts("\r\n");
     sendMessage(&next, 0x3000);
     exec(&next, getCurrentSegment() + 0x1000);
