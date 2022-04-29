@@ -15,14 +15,11 @@ int main() {
   int i = 0;
   int j = 0;
   byte ROOT = FS_NODE_P_IDX_ROOT;
-  byte cur_dir;
   byte nodeFound = -1;
   byte dir = - 1;
   enum fs_retcode ret_code;
 
   getMessage(&m, getCurrentSegment());
-
-  cur_dir = m.current_directory;
 
   puts(m.arg1);
   puts(m.arg2);
@@ -32,7 +29,7 @@ int main() {
     error_code(9, m.arg1, m.arg2, m.arg3);
     exit();
   }
-
+  clear(buffer, 8192);
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
 
