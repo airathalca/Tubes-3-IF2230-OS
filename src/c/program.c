@@ -87,6 +87,11 @@ void error_code(int err_code, char*command, char*arg1, char*arg2){
     puts(arg1);
     if(arg1_len) puts(" ");
     puts("Folder already exists\r\n");
+    break;
+  case 9:
+    puts(arg1);
+    puts(" Invalid arguments\r\n");
+    break;
   default:
     break;
   }

@@ -21,9 +21,9 @@ int main() {
   clear(next.arg1, 64);
   clear(next.arg2, 64);
   clear(next.arg3, 64);
-  strcpy(next.arg1, "mkdir");
-  strcpy(next.arg2, "test123");
-  strcpy(next.arg3, "geming");
+  strcpy(next.arg1, "mv");
+  strcpy(next.arg2, "512");
+  strcpy(next.arg3, "bin");
   next.next_program_segment = 0x2000;
   
   while (true) {
