@@ -79,7 +79,9 @@ int strparsing(char *input, char** output)
     for(i=0;i<commandcount;i++){
         strcpy(command[i],uniq_spc(command[i]));
         if (command[i][0] == ' ') memcpy(command[i], command[i]+1, strlen(command[i]) - 1);
-        if (command[i][strlen(command[i])-1] == ' ') command[i][strlen(command[i])-1] = '\0';
+        while (command[i][strlen(command[i])-1] == ' ') {
+            command[i][strlen(command[i])-1] = '\0';
+        }
         output[i] = command[i];
     }
     return commandcount;
