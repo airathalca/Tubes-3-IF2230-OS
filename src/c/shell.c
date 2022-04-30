@@ -1,51 +1,59 @@
 #include "header/shell.h"
 
 int main() {
+  struct message now;
+  struct message next[5];
+  
+  enum fs_retcode ret_code = 0;
+  int i = 0;
+  int commandcount = 0;
+
   char input_split[8][256];
+  char current_input[256];
   char input_buf[128];
   char path_str[128];
   char command[64];
   char arg1[64];
   char arg2[64];
-  enum fs_retcode ret_code = 0;
-  int commandcount = 0;
+  bool valid[5];
   byte current_dir = FS_NODE_P_IDX_ROOT;
-  struct message next;
-  struct message next2;
 
-  getMessage(&next, getCurrentSegment());
-  current_dir = next.current_directory;
-  // putsHexa(getCurrentSegment());
-  // puts("\r\n");
-  // putsHexa(current_dir);
-  // puts("\r\n");
-  // putsHexa(current_dir);
-  // puts("\r\n");
-  clear(next.arg1, 64);
-  clear(next.arg2, 64);
-  clear(next.arg3, 64);
-  strcpy(next.arg1, "shell");
-  strcpy(next.arg2, "512");
-  strcpy(next.arg3, "bin");
-  next.next_program_segment = 0x2000;
-  sendMessage(&next, 0x3000);
-  strcpy(next2.arg1, "ls");
-  strcpy(next2.arg2, "bin");
-  next2.arg3[0] = '\0';
-  next2.next_program_segment = 0x2000;
-  sendMessage(&next2, 0x4000);
+  getMessage(&now, getCurrentSegment());
+  current_dir = now.current_directory;
+
+  for (i = 0; i < 5; i++) {
+    valid[i] = false;
+  }
+
   while (true) {
     clear(input_buf, 128);
-    clear(arg1, 64);
-    clear(arg2, 64);
-    clear(command, 64);
+    clear(current_input, 256);
     puts("user@uSUSbuntuOS:");
     printCWD(path_str, current_dir);
     puts("$ ");
     gets(input_buf);
     commandcount = strparsing(input_buf,input_split);
+    for(i = 0; i < commandcount; i++) {
+      clear(arg1, 64);
+      clear(arg2, 64);
+      clear(command, 64);
+
+      strcpy(current_input, input_split[i]);
+      argSplitter(current_input, &command, &arg1, &arg2, &valid[i]);
+      
+      // send message
+      next[i].current_directory = current_dir;
+      strcpy(next[i].arg1, command);
+      strcpy(next[i].arg2, arg1);
+      strcpy(next[i].arg3, arg2);
+
+      if (i == commandcount - 1) next[i].next_program_segment = 0x2000;
+      else next[i].next_program_segment = 0x4000 + i * 0x1000;
+
+      sendMessage(&next[i], 0x3000 + i * 0x1000);
+    }
     puts("\r\n");
-    exec(&next, 0x2000);
+    exec(&next[0], 0x3000);
     // argSplitter(&input_buf, &command, &arg1, &arg2);
     // command_type(&command, &current_dir, &arg1, &arg2, &ret_code);
   }
@@ -88,13 +96,16 @@ int main() {
 //   error_code(ret_code, command, arg1, arg2);
 // }
 
-void argSplitter(char *input_buf, char *command, char* arg1, char *arg2){
+void argSplitter(char input_buf[256], char *command, char* arg1, char *arg2, bool *valid){
   int size;
   int i = 0;
+  int j = 0;
   int now = 0;
   int k;
   int count = 0;
-  
+
+  *valid = true;
+
   while(input_buf[i] != '\0') {
     if(count == 0){
       k = 0;
@@ -120,10 +131,12 @@ void argSplitter(char *input_buf, char *command, char* arg1, char *arg2){
         i++;
       }
       count++;
+    } else {
+      if(input_buf[i] != '\0') {
+        *valid = false;
+      }
     }
-    if(input_buf[i] == ' ') {
-      //error;
-    }
+    i++;
   }
 }
 

@@ -13,6 +13,8 @@ int main(){
   char buffer[8192];
   enum fs_retcode ret_code;
 
+  clear(buffer, 8192);
+
   getMessage(&m, getCurrentSegment());
 
   if (!checkArgs(m.arg2, &ret_code)) {
