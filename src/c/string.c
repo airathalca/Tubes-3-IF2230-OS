@@ -51,13 +51,16 @@ int strparsing(char *input, char output[8][256])
 
     while(1){
         if(input[i]=='\0'){
-            commandcount++;
+            if(z != 0) commandcount++;
             break;
         } 
         else if(input[i]==';'){
-            commandcount++;
+            if(z != 0)  {
+              commandcount++;
+              
+              j++;
+            }
             z=0;
-            j++;
         }
         else{
             command[j][z] = input[i];
