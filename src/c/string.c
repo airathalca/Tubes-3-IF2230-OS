@@ -27,32 +27,17 @@ void strcpy(char *dst, char *src) {
   while ((*dst++ = *src++) != '\0');
 }
 
-char* uniq_spc(char* str){
-    char *from, *to;
-    int spc=0;
-    to=from=str;
-    while(1){
-        if(spc && *from == ' ' && to[-1] == ' ')
-            ++from;
-        else {
-            spc = (*from==' ')? 1 : 0;
-            *to++ = *from++;
-            if(!to[-1])break;
-        }
-    }
-    return str;
-}
-
-int strparsing(char *input, char** output)
+int strparsing(char *input, char output[8][256])
 {
     char command[8][256];
+    char newcom[256];
     int i=0;
     int j=0;
     int z=0;
     int commandcount=0;
     
-    for(i=0;i<8;i++){
-        for(j=0;j<64;j++){
+    for(i = 0;i < 8;i++){
+        for(j = 0;j < 256;j++){
             command[i][j] = '\0';
         }
     }
@@ -60,6 +45,10 @@ int strparsing(char *input, char** output)
     i=0;
     j=0;
     
+    if (input[0] == '\0') {
+      return 0;
+    }
+
     while(1){
         if(input[i]=='\0'){
             commandcount++;
@@ -76,13 +65,30 @@ int strparsing(char *input, char** output)
         }
         i++;  
     }
-    for(i=0;i<commandcount;i++){
-        strcpy(command[i],uniq_spc(command[i]));
-        if (command[i][0] == ' ') memcpy(command[i], command[i]+1, strlen(command[i]) - 1);
-        while (command[i][strlen(command[i])-1] == ' ') {
-            command[i][strlen(command[i])-1] = '\0';
+    for(i = 0; i < commandcount; i++){
+        j = 0;
+        z = 0;
+        clear(newcom,256);
+        while (command[i][j] != '\0') {
+          if (!(command[i][j] == ' ' && command[i][j+1] == ' ')) {
+            newcom[z] = command[i][j];
+            z++;
+          }
+          j++;
         }
-        output[i] = command[i];
+        newcom[z] = '\0';
+        if (newcom[0] == ' ') {
+          j = 0;
+          while (newcom[j+1] != '\0') {
+            newcom[j] = newcom[j+1];
+            j++;
+          }
+          newcom[j] = '\0';
+        }
+        while (newcom[strlen(newcom)-1] == ' ') {
+            newcom[strlen(newcom)-1] = '\0';
+        }
+        strcpy(output[i], newcom);
     }
     return commandcount;
 }

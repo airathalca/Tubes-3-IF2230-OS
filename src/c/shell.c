@@ -1,7 +1,7 @@
 #include "header/shell.h"
 
 int main() {
-  char *input_split[8];
+  char input_split[8][256];
   char input_buf[128];
   char path_str[128];
   char command[64];
@@ -24,10 +24,10 @@ int main() {
   clear(next.arg1, 64);
   clear(next.arg2, 64);
   clear(next.arg3, 64);
-  strcpy(next.arg1, "mv");
+  strcpy(next.arg1, "shell");
   strcpy(next.arg2, "512");
   strcpy(next.arg3, "bin");
-  next.next_program_segment = 0x4000;
+  next.next_program_segment = 0x2000;
   sendMessage(&next, 0x3000);
   strcpy(next2.arg1, "ls");
   strcpy(next2.arg2, "bin");
@@ -44,9 +44,8 @@ int main() {
     puts("$ ");
     gets(input_buf);
     commandcount = strparsing(input_buf,input_split);
-    //TODO = coba cek input_splitnya udah bener ga (belom di argsplitter), commandcount = banyaknya command dari input buf udah dipindahin ke input split
     puts("\r\n");
-    exec(&next, 0x3000);
+    exec(&next, 0x2000);
     // argSplitter(&input_buf, &command, &arg1, &arg2);
     // command_type(&command, &current_dir, &arg1, &arg2, &ret_code);
   }
