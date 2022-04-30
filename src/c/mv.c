@@ -20,16 +20,14 @@ int main() {
   enum fs_retcode ret_code;
 
   getMessage(&m, getCurrentSegment());
-
-  puts(m.arg1);
-  puts(m.arg2);
-  puts(m.arg3);
-
+  sendMessage(&m, getCurrentSegment());
   if (!checkArgs(m.arg2, &ret_code)) {
     error_code(9, m.arg1, m.arg2, m.arg3);
     exit();
   }
+
   clear(buffer, 8192);
+  fileinfo.buffer = buffer;
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
 
@@ -53,16 +51,12 @@ int main() {
 
   //read file from filesystem
   read(&fileinfo, &ret_code);
-  puts("1");
-  putsHexa(m.current_directory);
-  putsHexa(m.next_program_segment);
+
   //if not found
   if (ret_code != FS_SUCCESS && ret_code != FS_R_TYPE_IS_FOLDER) {
     error_code(ret_code, m.arg1, m.arg2, m.arg3);
     exit();
   }
-
-  puts("2");
 
   //read root
   if (m.arg3[0] == '/') {
@@ -108,8 +102,6 @@ int main() {
     }
   }
 
-  puts("3");
-
   if (dir == - 1) {
     ret_code = FS_W_INVALID_FOLDER;
     error_code(ret_code, m.arg1, m.arg2, m.arg3);
@@ -126,9 +118,8 @@ int main() {
   node_fs_buffer.nodes[nodeFound].parent_node_index = dir;
   strcpy(node_fs_buffer.nodes[nodeFound].name, fileinfo.node_name);
   writeSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
-  writeSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER);
+  writeSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
 
   ret_code = FS_SUCCESS;
-  sendMessage(&m, getCurrentSegment());
   exit();
 }
