@@ -18,9 +18,12 @@ void exit(){
   next.current_directory = now.current_directory;
   sendMessage(&next, now.next_program_segment);
   
-  // puts("MENUJU: ");
-  // putsHexa(next.next_program_segment);
-  // puts("\r\n");
+  puts("DARI: ");
+  putsHexa(getCurrentSegment());
+  puts("\r\n");
+  puts("MENUJU: ");
+  putsHexa(now.next_program_segment);
+  puts("\r\n");
   // puts(next.arg1);
   // puts("\r\n");
   exec(&next, now.next_program_segment);

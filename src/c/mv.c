@@ -20,7 +20,7 @@ int main() {
   enum fs_retcode ret_code;
 
   getMessage(&m, getCurrentSegment());
-  sendMessage(&m, getCurrentSegment());
+
   if (!checkArgs(m.arg2, &ret_code)) {
     error_code(9, m.arg1, m.arg2, m.arg3);
     exit();

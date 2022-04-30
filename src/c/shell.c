@@ -11,6 +11,7 @@ int main() {
   int commandcount = 0;
   byte current_dir = FS_NODE_P_IDX_ROOT;
   struct message next;
+  struct message next2;
 
   getMessage(&next, getCurrentSegment());
   current_dir = next.current_directory;
@@ -26,7 +27,13 @@ int main() {
   strcpy(next.arg1, "mv");
   strcpy(next.arg2, "512");
   strcpy(next.arg3, "bin");
-  next.next_program_segment = 0x2000;
+  next.next_program_segment = 0x4000;
+  sendMessage(&next, 0x3000);
+  strcpy(next2.arg1, "ls");
+  strcpy(next2.arg2, "bin");
+  next2.arg3[0] = '\0';
+  next2.next_program_segment = 0x2000;
+  sendMessage(&next2, 0x4000);
   while (true) {
     clear(input_buf, 128);
     clear(arg1, 64);
@@ -39,8 +46,7 @@ int main() {
     commandcount = strparsing(input_buf,input_split);
     //TODO = coba cek input_splitnya udah bener ga (belom di argsplitter), commandcount = banyaknya command dari input buf udah dipindahin ke input split
     puts("\r\n");
-    sendMessage(&next, 0x3000);
-    exec(&next, getCurrentSegment() + 0x1000);
+    exec(&next, 0x3000);
     // argSplitter(&input_buf, &command, &arg1, &arg2);
     // command_type(&command, &current_dir, &arg1, &arg2, &ret_code);
   }
