@@ -12,8 +12,9 @@ This project is made to fulfill the 1st, 2nd, and 3rd milestone for the Operatin
 
 ## Screenshots
 
-![image](https://user-images.githubusercontent.com/63847012/161774200-b41ea274-861f-426f-afa0-11670bc6ed01.png)
-![image](https://user-images.githubusercontent.com/63847012/161774340-fcd429be-9e05-4b83-a82a-47ed319cd181.png)
+![image](https://user-images.githubusercontent.com/73151449/166109915-f7bd74c9-4722-4497-b010-348d8d9a8cf7.png)
+![image](https://user-images.githubusercontent.com/73151449/166109954-84f7dcaa-4d5b-4a8e-b2e5-7cc9be9da866.png)
+
 
 ## Technologies Used
 
