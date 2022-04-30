@@ -100,22 +100,23 @@ int main() {
         }
       }
     }
+    
+    if (dir == - 1) {
+      ret_code = FS_W_INVALID_FOLDER;
+      error_code(ret_code, m.arg1, m.arg2, m.arg3);
+      exit();
+    }
+
+    if(strlen(m.arg3) > 13) {
+      ret_code = FS_W_NOT_ENOUGH_STORAGE;
+      error_code(ret_code, m.arg1, m.arg2, m.arg3);
+      exit();
+    }
+
+    fileinfo.parent_index = dir;
+    node_fs_buffer.nodes[nodeFound].parent_node_index = dir;
   }
 
-  if (dir == - 1) {
-    ret_code = FS_W_INVALID_FOLDER;
-    error_code(ret_code, m.arg1, m.arg2, m.arg3);
-    exit();
-  }
-
-  if(strlen(m.arg3) > 13) {
-    ret_code = FS_W_NOT_ENOUGH_STORAGE;
-    error_code(ret_code, m.arg1, m.arg2, m.arg3);
-    exit();
-  }
-
-  fileinfo.parent_index = dir;
-  node_fs_buffer.nodes[nodeFound].parent_node_index = dir;
   strcpy(node_fs_buffer.nodes[nodeFound].name, fileinfo.node_name);
   writeSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   writeSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
