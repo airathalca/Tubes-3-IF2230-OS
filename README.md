@@ -12,9 +12,8 @@ This project is made to fulfill the 1st, 2nd, and 3rd milestone for the Operatin
 
 ## Screenshots
 
-![image](https://user-images.githubusercontent.com/73151449/166109915-f7bd74c9-4722-4497-b010-348d8d9a8cf7.png)
-![image](https://user-images.githubusercontent.com/73151449/166109954-84f7dcaa-4d5b-4a8e-b2e5-7cc9be9da866.png)
-
+![image](https://user-images.githubusercontent.com/63847012/161774200-b41ea274-861f-426f-afa0-11670bc6ed01.png)
+![image](https://user-images.githubusercontent.com/63847012/161774340-fcd429be-9e05-4b83-a82a-47ed319cd181.png)
 
 ## Technologies Used
 
@@ -31,14 +30,16 @@ This project is made to fulfill the 1st, 2nd, and 3rd milestone for the Operatin
 This OS was in implementation from the boilerplate given by sister19. In this OS you can use simple command like `cat` to read file, `ls` to list file and many more. To see more command check the command section. This OS is made using bcc, bochs, c, and asm. 
 
 ## Program Features
-1. Kernel
-2. Shell
+1. kernel
+2. shell
 4. cd
 5. cp
 6. cat
 7. ls
 8. mv
 9. mkdir
+10. execute program locally & globally
+11. multiple program with and without message passing
 
 ## Setup
 
@@ -61,15 +62,17 @@ sudo apt install nasm bcc bin86 bochs bochs-x make
 5. `mkdir <folder_name>` - to create new folder in current dir
 6. `cat <file_name>` - to read and display file
 7. `cp <file or folder> <target>` - copy file to target dir if no folder exists will rename to target
+8. `./<file_name>` - to execute file in current dir
 
-8. `[OPTIONAL]` - if not specified refer to cwd 
-9. `<MANDATORY>` - this argument is must in order to run
+9. `[OPTIONAL]` - if not specified refer to cwd 
+10. `<MANDATORY>` - this argument is must in order to run
 
 ## Usage
 
-1. After you run the OS the clearFunction will run by default and it will clear the screen leaving the shell with the location of curdir
-2. You can type any character, or command in that will go to the buffer with 128 byte size.
-3. If you pressed enter, the text you typed before will be process as command.
+1. Run the kernel program and a welcome page will be displayed. Press any key to clear the screen and use the program.
+2. After you run the OS the clearFunction will run by default and it will clear the screen leaving the shell with the location of curdir
+3. You can type any character, or command in that will go to the buffer with 128 byte size.
+4. If you pressed enter, the text you typed before will be process as command.
 
 ## References
 
