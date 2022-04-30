@@ -29,9 +29,7 @@ int main(){
   read(&fileinfo, &ret_code);
   if(ret_code == 0) {
     puts(fileinfo.buffer);
-    puts("\r\n");
   }
 
-  sendMessage(&m, getCurrentSegment());
   exit();
 }

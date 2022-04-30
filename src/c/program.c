@@ -4,7 +4,8 @@
 void exec(struct message *m, int segment){
   struct file_metadata file;
   file.node_name = m->arg1;
-  file.parent_index = 0;
+  if(m->arg1[0] == '.' && m->arg1[1] == '/') file.parent_index = m->current_directory;
+  else file.parent_index = 0;
   interrupt(0x21, 0x6, &file, segment, 0);
 }
 

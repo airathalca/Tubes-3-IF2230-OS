@@ -47,13 +47,16 @@ int main() {
       strcpy(next[i].arg2, arg1);
       strcpy(next[i].arg3, arg2);
 
-      if (i == commandcount - 1) next[i].next_program_segment = 0x2000;
+      if (i == commandcount - 1) {
+        next[i].next_program_segment = 0x2000;
+      } 
       else next[i].next_program_segment = 0x4000 + i * 0x1000;
 
       sendMessage(&next[i], 0x3000 + i * 0x1000);
     }
     puts("\r\n");
-    exec(&next[0], 0x3000);
+    if(commandcount == 0) exec(&now, 0x2000);
+    else exec(&next[0], 0x3000);
     // argSplitter(&input_buf, &command, &arg1, &arg2);
     // command_type(&command, &current_dir, &arg1, &arg2, &ret_code);
   }

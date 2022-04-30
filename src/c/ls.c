@@ -17,7 +17,6 @@ int main(){
   readSector(&(node_fs_buffer.nodes[0]), FS_NODE_SECTOR_NUMBER);
   readSector(&(node_fs_buffer.nodes[32]), FS_NODE_SECTOR_NUMBER + 1);
   getMessage(&m, getCurrentSegment());
-  sendMessage(&m, getCurrentSegment());
 
   if(m.arg3[0] != '\0') {
     error_code(9, m.arg1, m.arg2, m.arg3);

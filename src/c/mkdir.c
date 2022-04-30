@@ -26,8 +26,6 @@ int main(){
   fileinfo.buffer = buffer;
   strcpy(fileinfo.node_name, m.arg2);
 
-  sendMessage(&m, getCurrentSegment());
-
   write(&fileinfo, &ret_code);
   error_code(ret_code, m.arg1, m.arg2, m.arg3);
   exit();

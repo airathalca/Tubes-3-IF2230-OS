@@ -59,6 +59,5 @@ int main() {
         }
     }
 
-    sendMessage(&m, getCurrentSegment());
     exit();
 }
