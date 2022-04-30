@@ -16,6 +16,7 @@ void makeInterrupt21();
 void handleInterrupt21(int AX, int BX, int CX, int DX);
 void fillKernelMap();
 void initialMessage();
+void welcome();
 
 void printString(char *string);
 void printHexa(char n);

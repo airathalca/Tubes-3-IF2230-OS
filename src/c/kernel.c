@@ -11,11 +11,32 @@ int main() {
     fillKernelMap();
     clearScreen();
     makeInterrupt21();
+    welcome();
     initialMessage();
     meta.node_name = "shell";
     meta.parent_index = 0;
     executeProgram(&meta, 0x2000);
     while(true);
+}
+
+void welcome() {
+    char *string;
+    interrupt(0x10, 0x0200, 0, 0, 0x0307);
+    printString("       ____  _   _ ____  _                 _            ___  ____\r\n");
+    interrupt(0x10, 0x0200, 0, 0, 0x0407);
+    printString(" _   _/ ___|| | | / ___|| |__  _   _ _ __ | |_ _   _   / _ \\/ ___|\r\n");
+    interrupt(0x10, 0x0200, 0, 0, 0x0507);
+    printString("| | | \\___ \\| | | \\___ \\| '_ \\| | | | '_ \\| __| | | | | | | \\___ \\\r\n");
+    interrupt(0x10, 0x0200, 0, 0, 0x0607);
+    printString("| |_| |___) | |_| |___) | |_) | |_| | | | | |_| |_| | | |_| |___) |\r\n");
+    interrupt(0x10, 0x0200, 0, 0, 0x0707);
+    printString(" \\__,_|____/ \\___/|____/|_.__/ \\__,_|_| |_|\\__|\\__,_|  \\___/|____/\r");
+    interrupt(0x10, 0x0200, 0, 0, 0x0928 - 0x0C);
+    printString("Welcome to uSUSbuntu OS\r\n");
+    interrupt(0x10, 0x0200, 0, 0, 0x0A28 - 0x12);
+    printString("Press enter any key to get started\r\n\n");
+    readString(string);
+    clearScreen();
 }
 
 void handleInterrupt21(int AX, int BX, int CX, int DX) {
