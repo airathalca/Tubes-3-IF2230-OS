@@ -6,6 +6,7 @@
 #include "std_lib.h"
 #include "filesystem.h"
 #include "message.h"
+#include "utils.h"
 
 extern void putInMemory(int segment, int address, char character);
 extern int interrupt(int int_number, int AX, int BX, int CX, int DX);

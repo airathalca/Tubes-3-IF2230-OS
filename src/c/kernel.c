@@ -342,6 +342,8 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 
 void executeProgram(struct file_metadata *metadata, int segment) {
   enum fs_retcode fs_ret;
+  struct message now;
+  struct message next;
   byte buf[8192];
   int i = 0;
 
@@ -357,5 +359,10 @@ void executeProgram(struct file_metadata *metadata, int segment) {
     launchProgram(segment);
   }else {
     printString("exec: file not found\r\n");
+    getMessage(&now, getCurrentSegment());
+    getMessage(&next, 0x2000);
+    next.current_directory = now.current_directory;
+    sendMessage(&next, 0x2000);
+    launchProgram(0x2000);
   } 
 }

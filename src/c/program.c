@@ -3,8 +3,11 @@
 //exec tuh intinya ngejalanin program di segment tertentu
 void exec(struct message *m, int segment){
   struct file_metadata file;
-  file.node_name = m->arg1;
-  if(m->arg1[0] == '.' && m->arg1[1] == '/') file.parent_index = m->current_directory;
+  file.node_name =  m->arg1;
+  if(m->arg1[0] == '.' && m->arg1[1] == '/') {
+    file.parent_index = m->current_directory;
+    file.node_name = m->arg1 + 2;
+  } 
   else file.parent_index = 0;
   interrupt(0x21, 0x6, &file, segment, 0);
 }
@@ -19,12 +22,12 @@ void exit(){
   next.current_directory = now.current_directory;
   sendMessage(&next, now.next_program_segment);
   
-  puts("DARI: ");
-  putsHexa(getCurrentSegment());
-  puts("\r\n");
-  puts("MENUJU: ");
-  putsHexa(now.next_program_segment);
-  puts("\r\n");
+  // puts("DARI: ");
+  // putsHexa(getCurrentSegment());
+  // puts("\r\n");
+  // puts("MENUJU: ");
+  // putsHexa(now.next_program_segment);
+  // puts("\r\n");
   // puts(next.arg1);
   // puts("\r\n");
   exec(&next, now.next_program_segment);
@@ -77,14 +80,12 @@ byte read_relative_path(byte parentIdx, char *path_str, enum fs_retcode *ret_cod
         }
       }
 
-      if(node_fs_buffer.nodes[parentIdx].sector_entry_index != FS_NODE_S_IDX_FOLDER) {
-        *ret_code = FS_R_TYPE_IS_FOLDER;
-        return prevParentIndex;
-
-      } else if (!found){
+      if(!found) {
         *ret_code = FS_W_INVALID_FOLDER;
         return prevParentIndex;
-
+      } else if (node_fs_buffer.nodes[parentIdx].sector_entry_index != FS_NODE_S_IDX_FOLDER){
+        *ret_code = FS_R_TYPE_IS_FOLDER;
+        return prevParentIndex;
       } else {
         clear(temp_str, 128);
       }
