@@ -25,6 +25,7 @@ int main(){
     
     if (!checkArgs(m.arg2, &ret_code)) {
       sendMessage(&m, getCurrentSegment());
+      error_code(9, m.arg1, m.arg2, m.arg3);
       exit();
     }
 
@@ -35,6 +36,9 @@ int main(){
     read(&fileinfo, &ret_code);
     if(ret_code == 0) {
       puts(fileinfo.buffer);
+      puts("\r\n");
+    } else {
+      error_code(ret_code, m.arg1, m.arg2, m.arg3);
     }
 
   } else {
