@@ -38,8 +38,8 @@ This OS was in implementation from the boilerplate given by sister19. In this OS
 7. ls
 8. mv
 9. mkdir
-10. execute program locally & globally
-11. multiple program with and without message passing
+10. execute a program locally and globally
+11. multiple program execution with and without message passing
 
 ## Setup
 
