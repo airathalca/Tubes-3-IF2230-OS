@@ -17,18 +17,28 @@ int main(){
 
   getMessage(&m, getCurrentSegment());
 
-  if (!checkArgs(m.arg2, &ret_code)) {
-    sendMessage(&m, getCurrentSegment());
-    exit();
-  }
+  if (m.valid) {
+    if(m.arg3[0] != '\0') {
+      error_code(9, m.arg1, m.arg2, m.arg3);
+      exit();
+    }
+    
+    if (!checkArgs(m.arg2, &ret_code)) {
+      sendMessage(&m, getCurrentSegment());
+      exit();
+    }
 
-  fileinfo.parent_index = m.current_directory;
-  fileinfo.buffer = buffer;
-  strcpy(fileinfo.node_name, m.arg2);
-  
-  read(&fileinfo, &ret_code);
-  if(ret_code == 0) {
-    puts(fileinfo.buffer);
+    fileinfo.parent_index = m.current_directory;
+    fileinfo.buffer = buffer;
+    strcpy(fileinfo.node_name, m.arg2);
+    
+    read(&fileinfo, &ret_code);
+    if(ret_code == 0) {
+      puts(fileinfo.buffer);
+    }
+
+  } else {
+    error_code(9, m.arg1, m.arg2, m.arg3);
   }
 
   exit();

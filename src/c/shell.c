@@ -15,16 +15,11 @@ int main() {
   char command[64];
   char arg1[64];
   char arg2[64];
-  bool valid[5];
+  bool valid = false;
   byte current_dir = FS_NODE_P_IDX_ROOT;
 
   getMessage(&now, getCurrentSegment());
   current_dir = now.current_directory;
-
-  for (i = 0; i < 5; i++) {
-    valid[i] = false;
-  }
-
   while (true) {
     clear(input_buf, 128);
     clear(current_input, 256);
@@ -39,10 +34,11 @@ int main() {
       clear(command, 64);
 
       strcpy(current_input, input_split[i]);
-      argSplitter(current_input, &command, &arg1, &arg2, &valid[i]);
+      argSplitter(current_input, &command, &arg1, &arg2, &valid);
       
       // send message
       next[i].current_directory = current_dir;
+      next[i].valid = valid;
       strcpy(next[i].arg1, command);
       strcpy(next[i].arg2, arg1);
       strcpy(next[i].arg3, arg2);

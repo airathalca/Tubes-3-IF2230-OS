@@ -15,18 +15,29 @@ int main(){
   enum fs_retcode ret_code;
 
   getMessage(&m, getCurrentSegment());
-  
-  if (!checkArgs(m.arg2, &ret_code)) {
-    sendMessage(&m, getCurrentSegment());
+
+  if (m.valid) {
+    if(m.arg3[0] != '\0') {
+      error_code(9, m.arg1, m.arg2, m.arg3);
+      exit();
+    }
+    
+    if (!checkArgs(m.arg2, &ret_code)) {
+      sendMessage(&m, getCurrentSegment());
+      error_code(ret_code, m.arg1, m.arg2, m.arg3);
+      exit();
+    }
+
+    fileinfo.parent_index = m.current_directory;
+    fileinfo.buffer = buffer;
+    strcpy(fileinfo.node_name, m.arg2);
+
+    write(&fileinfo, &ret_code);
     error_code(ret_code, m.arg1, m.arg2, m.arg3);
-    exit();
+
+  } else {
+    error_code(9, m.arg1, m.arg2, m.arg3);
   }
 
-  fileinfo.parent_index = m.current_directory;
-  fileinfo.buffer = buffer;
-  strcpy(fileinfo.node_name, m.arg2);
-
-  write(&fileinfo, &ret_code);
-  error_code(ret_code, m.arg1, m.arg2, m.arg3);
   exit();
 }

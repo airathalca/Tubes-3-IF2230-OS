@@ -11,8 +11,9 @@ struct message
   char arg1[64];
   char arg2[64];
   char arg3[64];
+  bool valid;
   int next_program_segment; // Dapat digunakan untuk bagian 3.5
-  byte other[317];
+  byte other[316];
 };
 
 
