@@ -23,7 +23,7 @@ This project is made to fulfill the 1st, 2nd, and 3rd milestone for the Operatin
 4. [Nasm](https://www.nasm.us/)
 5. [bcc](https://bochs.sourceforge.io/)
 6. bochs
-7. c
+7. c language
 
 ## Features
 
